@@ -32,7 +32,7 @@ if not HF_TOKEN:
     print("   Please create a .env file with: HF_TOKEN=your_token_here")
 
 # Paths to few-shot example
-EXAMPLE_IMAGE_PATH = Path(__file__).parent / "images/example_constat.png"
+EXAMPLE_IMAGE_PATH = Path(__file__).parent / "example_constat.png"
 EXPECTED_ANSWER_PATH = Path(__file__).parent / "expected_answer_constat.txt"
 
 print(f"🚀 Device: {DEVICE}")
@@ -148,12 +148,14 @@ def build_test_prompt(ocr_texts):
     """
     ocr_content = "\n".join(ocr_texts)
     
-    prompt = f"""Analyze this French Constat Amiable following the same format as the previous example.
+    prompt = f"""Analyze this NEW French Constat Amiable (this is a DIFFERENT accident case from the previous example).
 
 OCR TEXT:
 {ocr_content}
 
-Provide the same structured analysis: accident details, both vehicles, circumstances (only checked boxes), reconstruction, fault analysis, and summary. Be concise."""
+CRITICAL: For Section 12 (circumstances), carefully examine the image to determine which boxes have checkmarks. Only list boxes that are actually CHECKED - do not assume or guess.
+
+Provide the same structured analysis as the previous example: accident details, both vehicles, circumstances (only checked boxes), reconstruction, fault analysis, and summary. Be concise and accurate."""
     
     return prompt
 
@@ -266,14 +268,26 @@ def main():
     print(result['analysis'])
     print("-" * 70)
     
+    
     # Save result to output directory
     output_dir = Path(__file__).parent / "output"
     output_dir.mkdir(exist_ok=True)
     
+    # Save analysis result
     output_path = output_dir / (Path(test_image_path).stem + "_constat_result.txt")
     with open(output_path, 'w', encoding='utf-8') as f:
         f.write(result['analysis'])
-    print(f"\n💾 Résultat sauvegardé: {output_path}")
+    print(f"\n💾 Analyse sauvegardée: {output_path}")
+    
+    # Save OCR output
+    ocr_output_path = output_dir / (Path(test_image_path).stem + "_ocr_output.txt")
+    with open(ocr_output_path, 'w', encoding='utf-8') as f:
+        f.write("OCR EXTRACTED TEXT\n")
+        f.write("=" * 70 + "\n\n")
+        for i, text in enumerate(result['ocr_texts'], 1):
+            f.write(f"{i}. {text}\n")
+    print(f"💾 OCR sauvegardé: {ocr_output_path}")
+    
     print("✅ Terminé!")
 
 
