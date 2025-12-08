@@ -115,53 +115,28 @@ def build_prompt_with_ocr(ocr_texts):
     """
     ocr_content = "\n".join(ocr_texts)
     
-    prompt = f"""You are an expert insurance analyst specializing in French automobile accident reports (Constat Amiable d'Accident Automobile).
+    prompt = f"""Analyze this French Constat Amiable (accident report) and provide a structured analysis.
 
-OCR EXTRACTED TEXT:
+OCR TEXT:
 {ocr_content}
 
-TASK: Analyze this French Constat Amiable and provide a complete analysis. For each piece of information, cite the source section. Use simple plain text format.
+OUTPUT FORMAT:
 
-OUTPUT STRUCTURE:
+1. ACCIDENT DETAILS: Date, time, location, injuries (yes/no), witness info
 
-1. ACCIDENT DETAILS
-Extract: Date, time, location, injuries (yes/no), property damage, witness info.
-Always cite the source section in parentheses.
+2. VEHICLE A (Left): Driver name/DOB/address/phone, Vehicle make/reg, Insurance company/number/validity, License details, Damage description, Driver observation (quote + state if it BLAMES the other driver)
 
-2. VEHICLE A (Left/Yellow Side)
-Extract in subsections:
-- POLICYHOLDER (Section 6): name, address, phone
-- VEHICLE (Section 7): type, make/model, registration, country
-- INSURANCE (Section 8): company, contract number, green card, validity, agency
-- DRIVER (Section 9): name, DOB, address, phone, license details
-- CIRCUMSTANCES CHECKED (Section 12): list only the box numbers that are checked
-- IMPACT POINT (Section 10A): describe where the arrow points
-- VISIBLE DAMAGE (Section 11A): quote exactly what is written
-- DRIVER OBSERVATION (Section 14A): quote exactly what is written, then add critical analysis stating whether this is a self-description or a BLAME statement against the other driver
+3. VEHICLE B (Right): Same structure as Vehicle A
 
-3. VEHICLE B (Right/Blue Side)
-Same structure as Vehicle A.
+4. CIRCUMSTANCES: List ONLY the box numbers that are CHECKED for each vehicle (Section 12)
 
-4. ACCIDENT SKETCH (Section 13)
-Describe what is visible: street names, vehicle positions, signatures present.
+5. RECONSTRUCTION: Step-by-step how the accident happened based on checked boxes and damage
 
-5. ACCIDENT RECONSTRUCTION
-Step by step, explain how the accident happened based only on:
-- Which circumstance boxes are checked
-- The impact points shown
-- The damage described
-Cite the evidence for each step.
+6. FAULT ANALYSIS: Apply French liability rules based on circumstance boxes. State percentage liability for each vehicle with reasoning.
 
-6. FAULT DETERMINATION
-Apply French Constat liability rules:
-- Box 1 (parked) = 0% liability
-- Box 2 (leaving parking) = 100% liability
-State the percentage for each vehicle with reasoning.
+7. SUMMARY: Brief 1-2 sentence summary with date, location, what happened, fault conclusion.
 
-7. SUMMARY
-Brief summary with date, location, what happened, and fault conclusion.
-
-IMPORTANT: Only state facts visible in the document. If something is unclear, write "Not legible". Never guess."""
+IMPORTANT: Be concise. Only state visible facts. Write "Not legible" if unclear."""
     
     return prompt
 
