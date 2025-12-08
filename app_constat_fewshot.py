@@ -11,6 +11,10 @@ from transformers import AutoModel, AutoTokenizer
 from pathlib import Path
 import os
 import sys
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # ================== CONFIG ==================
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
@@ -20,11 +24,20 @@ CACHE_DIR.mkdir(parents=True, exist_ok=True)
 os.environ['HF_HOME'] = str(CACHE_DIR / "hf")
 os.environ['TRANSFORMERS_CACHE'] = str(CACHE_DIR / "transformers")
 
+# Get Hugging Face token from environment
+HF_TOKEN = os.getenv('HF_TOKEN')
+if not HF_TOKEN:
+    print("⚠️  Warning: HF_TOKEN not found in .env file")
+    print("   The MiniCPM-V-2_6 model is gated and requires authentication.")
+    print("   Please create a .env file with: HF_TOKEN=your_token_here")
+
 # Paths to few-shot example
 EXAMPLE_IMAGE_PATH = Path(__file__).parent / "example_constat.png"
 EXPECTED_ANSWER_PATH = Path(__file__).parent / "expected_answer_constat.txt"
 
 print(f"🚀 Device: {DEVICE}")
+if HF_TOKEN:
+    print(f"🔑 HF Token loaded: {HF_TOKEN[:10]}...")
 
 # ================== LOAD MODELS ==================
 
@@ -49,7 +62,8 @@ def load_minicpm():
     tokenizer = AutoTokenizer.from_pretrained(
         model_name,
         trust_remote_code=True,
-        cache_dir=str(CACHE_DIR)
+        cache_dir=str(CACHE_DIR),
+        token=HF_TOKEN
     )
     
     if DEVICE == "cuda":
@@ -58,7 +72,8 @@ def load_minicpm():
             trust_remote_code=True,
             attn_implementation='sdpa',  # or 'flash_attention_2' if available
             torch_dtype=torch.bfloat16,
-            cache_dir=str(CACHE_DIR)
+            cache_dir=str(CACHE_DIR),
+            token=HF_TOKEN
         )
         model = model.eval().cuda()
     else:
@@ -67,7 +82,8 @@ def load_minicpm():
             trust_remote_code=True,
             attn_implementation='sdpa',
             torch_dtype=torch.float32,
-            cache_dir=str(CACHE_DIR)
+            cache_dir=str(CACHE_DIR),
+            token=HF_TOKEN
         )
         model = model.eval()
     
