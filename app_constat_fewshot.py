@@ -148,14 +148,25 @@ def build_test_prompt(ocr_texts):
     """
     ocr_content = "\n".join(ocr_texts)
     
-    prompt = f"""Analyze this NEW French Constat Amiable (this is a DIFFERENT accident case from the previous example).
+    prompt = f"""Analyze this NEW French Constat Amiable (DIFFERENT accident case from the previous example).
 
 OCR TEXT:
 {ocr_content}
 
-CRITICAL: For Section 12 (circumstances), carefully examine the image to determine which boxes have checkmarks. Only list boxes that are actually CHECKED - do not assume or guess.
+Follow the same 7-section format as before:
+1. Accident details (date, time, location, injuries, witness)
+2. Vehicle A - Extract all info + damage + driver observation
+3. Vehicle B - Extract all info + damage + driver observation
+4. Circumstances - CRITICAL: Carefully check Section 12 image, only list CHECKED boxes
+5. Reconstruction - Step-by-step based on checked boxes + damage
+6. Fault analysis - Apply French liability rules, assign percentages with reasoning
+7. Summary - Brief conclusion
 
-Provide the same structured analysis as the previous example: accident details, both vehicles, circumstances (only checked boxes), reconstruction, fault analysis, and summary. Be concise and accurate."""
+KEY REMINDERS:
+- Driver observations: Quote exactly, then state if it's a BLAME against the other driver
+- Only state facts visible in the document
+- Write "Not legible" if unclear
+- Be concise and accurate"""
     
     return prompt
 
