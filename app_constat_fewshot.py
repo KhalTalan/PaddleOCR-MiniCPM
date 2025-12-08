@@ -108,10 +108,10 @@ def extract_ocr_text(ocr, image_path):
     return texts
 
 
-def build_prompt_with_ocr(ocr_texts):
+def build_training_prompt(ocr_texts):
     """
-    Build the analysis prompt combining OCR results with extraction instructions.
-    This prompt guides the model on how to interpret the Constat form.
+    Detailed prompt for the training example.
+    This teaches the model the desired output format.
     """
     ocr_content = "\n".join(ocr_texts)
     
@@ -137,6 +137,23 @@ OUTPUT FORMAT:
 7. SUMMARY: Brief 1-2 sentence summary with date, location, what happened, fault conclusion.
 
 IMPORTANT: Be concise. Only state visible facts. Write "Not legible" if unclear."""
+    
+    return prompt
+
+
+def build_test_prompt(ocr_texts):
+    """
+    Simplified prompt for test images.
+    The model already learned the format from the training example.
+    """
+    ocr_content = "\n".join(ocr_texts)
+    
+    prompt = f"""Analyze this French Constat Amiable following the same format as the previous example.
+
+OCR TEXT:
+{ocr_content}
+
+Provide the same structured analysis: accident details, both vehicles, circumstances (only checked boxes), reconstruction, fault analysis, and summary. Be concise."""
     
     return prompt
 
@@ -171,7 +188,7 @@ def analyze_constat_few_shot(test_image_path, ocr=None, model=None, tokenizer=No
     
     example_image = Image.open(EXAMPLE_IMAGE_PATH).convert('RGB')
     example_ocr_texts = extract_ocr_text(ocr, EXAMPLE_IMAGE_PATH)
-    example_prompt = build_prompt_with_ocr(example_ocr_texts)
+    example_prompt = build_training_prompt(example_ocr_texts)  # Detailed prompt for training
     expected_answer = load_expected_answer(EXPECTED_ANSWER_PATH)
     
     # ================== PREPARE TEST IMAGE ==================
@@ -179,7 +196,7 @@ def analyze_constat_few_shot(test_image_path, ocr=None, model=None, tokenizer=No
     
     test_image = Image.open(test_image_path).convert('RGB')
     test_ocr_texts = extract_ocr_text(ocr, test_image_path)
-    test_prompt = build_prompt_with_ocr(test_ocr_texts)
+    test_prompt = build_test_prompt(test_ocr_texts)  # Simplified prompt for test
     
     # ================== BUILD FEW-SHOT MESSAGES ==================
     print("\n🤖 Running few-shot inference...")
