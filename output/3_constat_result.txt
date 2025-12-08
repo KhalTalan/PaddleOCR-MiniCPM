@@ -1,0 +1,53 @@
+FRENCH AUTOMOBILE ACCIDENT REPORT (Constat Amiable d'Accident Automobile)
+
+================================================================================
+1. ACCIDENT DETAILS
+================================================================================
+
+Date: 09/10/2024, Time: 12h41, Location: Rue de la Libération, 6000 Saint-Étienne, France
+Injuries reported: No injuries (Source: Section 1)
+Property damage: Yes (Source: section 3, box "yes" marked)
+
+Witness:
+- Name: Stéphane Godin
+- Email: steptgain@gmail.com (Source: section 5)
+
+================================================================================
+2. VEHICLE A (Left/Yellow Side)
+================================================================================
+
+POLICYHOLDER (Section 6):
+- Name: LAMBERT Pierre
+- Address: Rue Royale 22, 1000 Pays-Belgique, Belgium
+- Phone: Not legible (Source: section 6)
+- Insurance Company: N/A (Source: section 8)
+
+VEHICLE (Section 7):
+- Type: Vehicle A
+- Make/Model: Not legible (Source: section 7)
+- Registration: 30000A
+- Country: Belgium (Source: section 7)
+
+INSURANCE (Section 8):
+- Company: Not legible (Source: section 8)
+- Contract number: Not legible (Source: section 8)
+- Green card: Not legible (Source: section 8)
+- Validity: Not legible (Source: section 8)
+- Agency: Not legible (Source: section 8)
+
+DRIVER (Section 9):
+- Name: LAMBERT Pierre
+- Date of birth: Not legible (Source: section 9)
+- Address: Rue Royale 22, 1000 Pays-Belgique, Belgium
+- Phone: Not legible (Source: section 9)
+- License: Not legible (Source: section 9)
+
+CIRCUMSTANCES CHECKED (Section 12):
+- Box 1: "Moteur avec des voitures autres que A et B" - Not checked (Source: section 12)
+- Box 2: "Objets autres que des véhicules" - Not checked (Source: section 12)
+- Box 3: "Véhicules autres que A et B" - Checked (Source: section 12)
+- Box 4: "Véhicules d'autres voitures" - Not checked (Source: section 12)
+- Box 5: "Véhicules d'autres voitures" - Not checked (Source: section 12)
+- Box 6: "Véhicules d'autres voitures" - Not checked (Source: section 12)
+- Box 7: "Véhicules d'autres voitures" - Not checked (Source: section 12)
+- Box 8: "Véhicules d'autres voitures" - Not checked (

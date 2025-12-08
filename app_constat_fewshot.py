@@ -32,7 +32,7 @@ if not HF_TOKEN:
     print("   Please create a .env file with: HF_TOKEN=your_token_here")
 
 # Paths to few-shot example
-EXAMPLE_IMAGE_PATH = Path(__file__).parent / "example_constat.png"
+EXAMPLE_IMAGE_PATH = Path(__file__).parent / "images/example_constat.png"
 EXPECTED_ANSWER_PATH = Path(__file__).parent / "expected_answer_constat.txt"
 
 print(f"🚀 Device: {DEVICE}")
