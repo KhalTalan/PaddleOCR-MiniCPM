@@ -246,7 +246,7 @@ PaddleOCR-MiniCPM/
 
 ### Critical Design Decisions
 
-1. **Same prompt for example and test**: Ensures consistency in model expectations
+1. **Split Prompts (Training vs Test)**: Uses a detailed prompt for the example to teach the format, but a constrained prompt for the test case to prevent data hallucination.
 2. **OCR + Vision**: Combines text extraction with visual understanding (for checkboxes)
 3. **Concise expected answer**: ~2.3KB to avoid token limits
 4. **Source citations**: Every fact traceable to document section

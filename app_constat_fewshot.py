@@ -108,10 +108,10 @@ def extract_ocr_text(ocr, image_path):
     return texts
 
 
-def build_prompt(ocr_texts):
+def build_training_prompt(ocr_texts):
     """
-    Build the analysis prompt with OCR text.
-    Same prompt used for both training example and test images for consistency.
+    Detailed prompt for the training example.
+    Teaches the model the format using the example data.
     """
     ocr_content = "\n".join(ocr_texts)
     
@@ -134,6 +134,29 @@ KEY REMINDERS:
 - Only state facts visible in the document
 - Write "Not legible" if unclear
 - Be concise and accurate"""
+    
+    return prompt
+
+
+def build_test_prompt(ocr_texts):
+    """
+    Prompt for the NEW test image.
+    Includes strong constraints to prevent bleeding from the example.
+    """
+    ocr_content = "\n".join(ocr_texts)
+    
+    prompt = f"""Analyze this NEW French Constat Amiable.
+
+CRITICAL INSTRUCTION:
+This is a COMPLETELY DIFFERENT accident case from the previous example.
+- IGNORE all names, dates, and details from the previous example.
+- Use ONLY the information visible in the NEW image and the NEW OCR text below.
+- Do NOT hallucinate information from the previous turn.
+
+NEW OCR TEXT:
+{ocr_content}
+
+Provide the analysis in the same 7-section format as the example, but using ONLY the data from this new accident case."""
     
     return prompt
 
@@ -168,13 +191,13 @@ def analyze_constat_few_shot(test_image_path, ocr=None, model=None, tokenizer=No
     print("\n📚 Processing example image OCR...")
     example_image = Image.open(EXAMPLE_IMAGE_PATH).convert('RGB')
     example_ocr_texts = extract_ocr_text(ocr, EXAMPLE_IMAGE_PATH)
-    example_prompt = build_prompt(example_ocr_texts)
+    example_prompt = build_training_prompt(example_ocr_texts)
     expected_answer = load_expected_answer(EXPECTED_ANSWER_PATH)
     
     print("\n🎯 Processing test image OCR...")
     test_image = Image.open(test_image_path).convert('RGB')
     test_ocr_texts = extract_ocr_text(ocr, test_image_path)
-    test_prompt = build_prompt(test_ocr_texts)
+    test_prompt = build_test_prompt(test_ocr_texts)
     
     # FREE GPU MEMORY: Delete OCR and clear cache
     print("🧹 Clearing OCR from memory...")
