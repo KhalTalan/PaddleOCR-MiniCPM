@@ -136,13 +136,12 @@ Box 1 (stationnement): ☐ EMPTY or ☑ CHECKED (confidence %)
 ...
 Box 17 (signal priorité): ☐ EMPTY or ☑ CHECKED (confidence %)
 
-MANUAL COUNTS (printed at bottom of section):
+MANUAL COUNTS :
 Vehicle A count: [read number]
 Vehicle B count: [read number]
 
 VERIFICATION: Your detected count must match the printed count. If mismatch, recheck uncertain boxes.
-
-Summary: Vehicle A checked boxes: [list], Vehicle B checked boxes: [list]"""
+"""
 
 
 def extract_checkboxes(model, processor, crop_image_path):
