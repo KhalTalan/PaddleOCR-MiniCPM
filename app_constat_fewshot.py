@@ -45,21 +45,10 @@ if HF_TOKEN:
 def load_paddleocr_vl():
     """Load PaddleOCR-VL using official API"""
     print("📦 Loading PaddleOCR-VL...")
-    try:
-        from paddleocr import PaddleOCRVL
-        pipeline = PaddleOCRVL()
-        print("✅ PaddleOCR-VL loaded")
-        return pipeline
-    except ImportError:
-        print("⚠️  PaddleOCR-VL not available, falling back to basic PaddleOCR")
-        from paddleocr import PaddleOCR
-        ocr = PaddleOCR(
-            use_angle_cls=True,
-            lang='fr',
-            use_gpu=(DEVICE == "cuda"),
-            show_log=False
-        )
-        return ocr
+    from paddleocr import PaddleOCRVL
+    pipeline = PaddleOCRVL()
+    print("✅ PaddleOCR-VL loaded")
+    return pipeline
 
 
 def load_minicpm():
@@ -100,30 +89,44 @@ def load_minicpm():
 
 
 def extract_ocr_text_vl(pipeline, image_path):
-    """Extract text using PaddleOCR-VL or basic PaddleOCR"""
-    print(f"🔍 OCR: {Path(image_path).name}")
+    """Extract text using PaddleOCR-VL"""
+    print(f"🔍 OCR-VL: {Path(image_path).name}")
     
-    # Check if it's PaddleOCRVL or basic PaddleOCR
-    if hasattr(pipeline, 'predict'):
-        # PaddleOCRVL
-        output = pipeline.predict(str(image_path))
-        texts = []
-        for res in output:
-            # Extract text from OCR results
-            if hasattr(res, 'ocr_text'):
-                texts.extend([line.strip() for line in res.ocr_text.split('\n') if line.strip()])
-            elif hasattr(res, 'text'):
-                texts.append(res.text.strip())
-    else:
-        # Basic PaddleOCR fallback
-        result = pipeline.ocr(str(image_path), cls=True)
-        texts = []
-        if result and result[0]:
-            for line in result[0]:
-                if len(line) >= 2 and line[1]:
-                    text = line[1][0] if isinstance(line[1], (list, tuple)) else str(line[1])
-                    if text:
-                        texts.append(text.strip())
+    # Use PaddleOCR-VL pipeline
+    output = pipeline.predict(str(image_path))
+    texts = []
+    
+    # Parse PaddleOCR-VL output
+    # The output is a list of results, each with OCR data
+    for result in output:
+        # Try different attributes that might contain the text
+        if hasattr(result, 'json'):
+            # Parse JSON output
+            import json
+            result_dict = json.loads(result.json() if callable(result.json) else result.json)
+            
+            # Extract text from various possible structures
+            if 'ocr_text' in result_dict:
+                texts.extend([line.strip() for line in result_dict['ocr_text'].split('\n') if line.strip()])
+            elif 'text' in result_dict:
+                texts.append(result_dict['text'].strip())
+            elif 'result' in result_dict and isinstance(result_dict['result'], list):
+                for item in result_dict['result']:
+                    if 'text' in item:
+                        texts.append(item['text'].strip())
+        
+        # Try direct attribute access
+        if hasattr(result, 'ocr_text') and result.ocr_text:
+            texts.extend([line.strip() for line in result.ocr_text.split('\n') if line.strip()])
+        elif hasattr(result, 'text') and result.text:
+            texts.append(result.text.strip())
+        
+        # Debug: print result structure if no text found
+        if not texts:
+            print(f"   ⚠️ Debug - Result type: {type(result)}")
+            print(f"   ⚠️ Debug - Result attributes: {dir(result)}")
+            if hasattr(result, '__dict__'):
+                print(f"   ⚠️ Debug - Result dict: {result.__dict__}")
     
     print(f"   Found {len(texts)} text blocks")
     return texts
