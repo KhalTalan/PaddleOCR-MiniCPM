@@ -207,7 +207,7 @@ def extract_ocr_text_vl(pipeline, image_path, save_debug=True):
 
 
 def build_training_prompt(ocr_texts):
-    """Training prompt emphasizing the verification pattern from expected answer"""
+    """Training prompt emphasizing verification pattern with confidence scores"""
     ocr_content = "\n".join(ocr_texts)
     
     prompt = f"""Analyze this French accident report (Constat Amiable) and provide structured output.
@@ -225,14 +225,12 @@ OUTPUT 7 SECTIONS:
 
 4. CIRCUMSTANCES (Section 12) - CHECKBOX VERIFICATION:
 
-CRITICAL: In the expected answer below, notice how ALL 17 BOXES were inspected systematically
-for each vehicle, marking each box as ☐ EMPTY or ☑ CHECKED based on visual verification.
+CRITICAL: In the expected answer, notice how ALL 17 BOXES were inspected systematically for each vehicle.
 
-Follow this same pattern:
-- Inspect boxes 1-17 for Vehicle A
-- Inspect boxes 1-17 for Vehicle B  
-- Only mark ☑ CHECKED if you see a checkmark/X/mark in the image
-- Most boxes will be ☐ EMPTY
+Follow this exact pattern:
+- List boxes 1-17 for Vehicle A: Each box marked ☐ EMPTY or ☑ CHECKED
+- List boxes 1-17 for Vehicle B: Each box marked ☐ EMPTY or ☑ CHECKED  
+- Add confidence percentage after each box (e.g., "95%" or "98%")
 - Provide summary of checked boxes at end
 
 5. RECONSTRUCTION: What happened based on checked boxes
@@ -241,13 +239,13 @@ Follow this same pattern:
 
 7. SUMMARY: Brief conclusion
 
-Be concise. Quote observations exactly. Systematically verify all checkboxes."""
+Be concise. Quote observations exactly. Systematically verify all checkboxes with confidence scores."""
     
     return prompt
 
 
 def build_test_prompt(ocr_texts):
-    """Test prompt emphasizing pattern from example"""
+    """Test prompt requesting same format including confidence scores"""
     ocr_content = "\n".join(ocr_texts)
     
     prompt = f"""Analyze this NEW French Constat Amiable (DIFFERENT from previous example).
@@ -257,23 +255,23 @@ def build_test_prompt(ocr_texts):
 NEW OCR TEXT:
 {ocr_content}
 
-Provide analysis using the SAME VERIFICATION PATTERN as the example:
+Provide analysis using the SAME FORMAT as the example:
 
 1. ACCIDENT DETAILS
 2. VEHICLE A  
 3. VEHICLE B
 
-4. CIRCUMSTANCES - Use the EXACT SAME FORMAT as the example:
-   - List all 17 boxes for Vehicle A with ☐ or ☑  
-   - List all 17 boxes for Vehicle B with ☐ or ☑
+4. CIRCUMSTANCES - Use EXACT SAME FORMAT:
+   - List all 17 boxes for Vehicle A: ☐ or ☑ with confidence %
+   - List all 17 boxes for Vehicle B: ☐ or ☑ with confidence %
    - Visually verify each checkbox in THIS new image
-   - Provide summary of checked boxes
+   - Provide summary
 
 5. RECONSTRUCTION
 6. FAULT ANALYSIS
 7. SUMMARY
 
-NOW ANALYZE THIS NEW CASE USING THE SAME SYSTEMATIC APPROACH:"""
+NOW ANALYZE THIS NEW CASE SYSTEMATICALLY:"""
     
     return prompt
 
