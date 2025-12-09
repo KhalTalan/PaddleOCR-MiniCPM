@@ -24,10 +24,49 @@ License: 18AB32045, Cat B, valid until 29/04/2032
 Damage: Front right fender and bumper
 Observation: "Était sur son téléphone!" - BLAMES Vehicle A for phone distraction
 
-4. CIRCUMSTANCES (Section 12)
-Vehicle A: Box 8 CHECKED (rear-end collision, same lane, same direction)
-Vehicle B: Box 12 CHECKED (turning right)
-All other boxes: NOT checked
+4. CIRCUMSTANCES (Section 12) - CHECKBOX VERIFICATION
+
+Vehicle A (Left Column) - Inspecting boxes 1-17:
+Box 1 (stationnement): ☐ EMPTY (95% confident - box clearly white/unmarked)
+Box 2 (quittait stationnement): ☐ EMPTY (95% confident - box clearly white/unmarked)
+Box 3 (prenait stationnement): ☐ EMPTY (95% confident - box clearly white/unmarked)
+Box 4 (sortait parking): ☐ EMPTY (95% confident - box clearly white/unmarked)
+Box 5 (s'engageait parking): ☐ EMPTY (95% confident - box clearly white/unmarked)
+Box 6 (place giratoire): ☐ EMPTY (95% confident - box clearly white/unmarked)
+Box 7 (roulait giratoire): ☐ EMPTY (95% confident - box clearly white/unmarked)
+Box 8 (heurtait l'arrière): ☑ CHECKED (98% confident - clear checkmark visible in image)
+Box 9 (file différente): ☐ EMPTY (95% confident - box clearly white/unmarked)
+Box 10 (changeait file): ☐ EMPTY (95% confident - box clearly white/unmarked)
+Box 11 (doublait): ☐ EMPTY (95% confident - box clearly white/unmarked)
+Box 12 (virait droite): ☐ EMPTY (95% confident - box clearly white/unmarked)
+Box 13 (virait gauche): ☐ EMPTY (95% confident - box clearly white/unmarked)
+Box 14 (reculait): ☐ EMPTY (95% confident - box clearly white/unmarked)
+Box 15 (empiétait): ☐ EMPTY (95% confident - box clearly white/unmarked)
+Box 16 (venait droite): ☐ EMPTY (95% confident - box clearly white/unmarked)
+Box 17 (signal priorité): ☐ EMPTY (95% confident - box clearly white/unmarked)
+
+Vehicle B (Right Column) - Inspecting boxes 1-17:
+Box 1 (stationnement): ☐ EMPTY (95% confident - box clearly white/unmarked)
+Box 2 (quittait stationnement): ☐ EMPTY (95% confident - box clearly white/unmarked)
+Box 3 (prenait stationnement): ☐ EMPTY (95% confident - box clearly white/unmarked)
+Box 4 (sortait parking): ☐ EMPTY (95% confident - box clearly white/unmarked)
+Box 5 (s'engageait parking): ☐ EMPTY (95% confident - box clearly white/unmarked)
+Box 6 (place giratoire): ☐ EMPTY (95% confident - box clearly white/unmarked)
+Box 7 (roulait giratoire): ☐ EMPTY (95% confident - box clearly white/unmarked)
+Box 8 (heurtait l'arrière): ☐ EMPTY (95% confident - box clearly white/unmarked)
+Box 9 (file différente): ☐ EMPTY (95% confident - box clearly white/unmarked)
+Box 10 (changeait file): ☐ EMPTY (95% confident - box clearly white/unmarked)
+Box 11 (doublait): ☐ EMPTY (95% confident - box clearly white/unmarked)
+Box 12 (virait droite): ☑ CHECKED (98% confident - clear checkmark visible in image)
+Box 13 (virait gauche): ☐ EMPTY (95% confident - box clearly white/unmarked)
+Box 14 (reculait): ☐ EMPTY (95% confident - box clearly white/unmarked)
+Box 15 (empiétait): ☐ EMPTY (95% confident - box clearly white/unmarked)
+Box 16 (venait droite): ☐ EMPTY (95% confident - box clearly white/unmarked)
+Box 17 (signal priorité): ☐ EMPTY (95% confident - box clearly white/unmarked)
+
+VERIFIED CHECKED BOXES:
+Vehicle A: Box 8 only (98% confident)
+Vehicle B: Box 12 only (98% confident)
 
 5. RECONSTRUCTION
 Step 1: Vehicle B was turning right (Box 12 checked)

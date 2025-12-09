@@ -207,7 +207,7 @@ def extract_ocr_text_vl(pipeline, image_path, save_debug=True):
 
 
 def build_training_prompt(ocr_texts):
-    """Direct training prompt for example - requests analysis immediately"""
+    """Training prompt emphasizing the verification pattern from expected answer"""
     ocr_content = "\n".join(ocr_texts)
     
     prompt = f"""Analyze this French accident report (Constat Amiable) and provide structured output.
@@ -223,10 +223,17 @@ OUTPUT 7 SECTIONS:
 
 3. VEHICLE B (Right): Same as Vehicle A
 
-4. CIRCUMSTANCES (Section 12): 
-Visually check boxes 1-17 for each vehicle. The OCR lists all labels but you must SEE checkmarks (✓/X).
-Vehicle A checked boxes: [list numbers or "None"]
-Vehicle B checked boxes: [list numbers or "None"]
+4. CIRCUMSTANCES (Section 12) - CHECKBOX VERIFICATION:
+
+CRITICAL: In the expected answer below, notice how ALL 17 BOXES were inspected systematically
+for each vehicle, marking each box as ☐ EMPTY or ☑ CHECKED based on visual verification.
+
+Follow this same pattern:
+- Inspect boxes 1-17 for Vehicle A
+- Inspect boxes 1-17 for Vehicle B  
+- Only mark ☑ CHECKED if you see a checkmark/X/mark in the image
+- Most boxes will be ☐ EMPTY
+- Provide summary of checked boxes at end
 
 5. RECONSTRUCTION: What happened based on checked boxes
 
@@ -234,33 +241,39 @@ Vehicle B checked boxes: [list numbers or "None"]
 
 7. SUMMARY: Brief conclusion
 
-Be concise. Quote observations exactly. Base analysis on visually verified checkboxes."""
+Be concise. Quote observations exactly. Systematically verify all checkboxes."""
     
     return prompt
 
 
 def build_test_prompt(ocr_texts):
-    """Direct test prompt - prevents bleeding from example"""
+    """Test prompt emphasizing pattern from example"""
     ocr_content = "\n".join(ocr_texts)
     
     prompt = f"""Analyze this NEW French Constat Amiable (DIFFERENT from previous example).
 
-⚠️ CRITICAL: IGNORE all details from previous example. Use ONLY this new image.
+⚠️ CRITICAL: This is a completely different accident. Use ONLY this new image.
 
 NEW OCR TEXT:
 {ocr_content}
 
-Provide analysis in same 7-section format:
+Provide analysis using the SAME VERIFICATION PATTERN as the example:
 
 1. ACCIDENT DETAILS
 2. VEHICLE A  
 3. VEHICLE B
-4. CIRCUMSTANCES - Visually verify Section 12 checkboxes (✓/X). List ONLY marked boxes.
+
+4. CIRCUMSTANCES - Use the EXACT SAME FORMAT as the example:
+   - List all 17 boxes for Vehicle A with ☐ or ☑  
+   - List all 17 boxes for Vehicle B with ☐ or ☑
+   - Visually verify each checkbox in THIS new image
+   - Provide summary of checked boxes
+
 5. RECONSTRUCTION
 6. FAULT ANALYSIS
 7. SUMMARY
 
-NOW ANALYZE THIS NEW CASE:"""
+NOW ANALYZE THIS NEW CASE USING THE SAME SYSTEMATIC APPROACH:"""
     
     return prompt
 
