@@ -124,23 +124,25 @@ def generate_response(model, processor, messages):
 
 def build_checkbox_prompt():
     """Prompt for Step 1: Extract checkboxes from crop"""
-    return """Analyze Section 12 checkboxes. For each of the 17 boxes per vehicle, mark ☐ EMPTY or ☑ CHECKED with confidence %.
+    return """Analyze this Section 12 (Circonstances) checkbox image.
 
-VEHICLE A (Left):
-Box 1-17: [☐/☑ + %]
+For VEHICLE A (Left column) - List all 17 boxes:
+Box 1 (stationnement): ☐ EMPTY or ☑ CHECKED (confidence %)
+...
+Box 17 (signal priorité): ☐ EMPTY or ☑ CHECKED (confidence %)
 
-VEHICLE B (Right):
-Box 1-17: [☐/☑ + %]
+For VEHICLE B (Right column) - List all 17 boxes:
+Box 1 (stationnement): ☐ EMPTY or ☑ CHECKED (confidence %)
+...
+Box 17 (signal priorité): ☐ EMPTY or ☑ CHECKED (confidence %)
 
-MANUAL COUNTS (printed at bottom):
-Vehicle A count: [number]
-Vehicle B count: [number]
+MANUAL COUNTS (printed at bottom of section):
+Vehicle A count: [read number]
+Vehicle B count: [read number]
 
-VERIFICATION: Does your detection match the printed counts? If not, recheck uncertain boxes.
+VERIFICATION: Your detected count must match the printed count. If mismatch, recheck uncertain boxes.
 
-SUMMARY:
-Vehicle A: [e.g., "Box n (...)"]
-Vehicle B: [e.g., "Box m (...)"]"""
+Summary: Vehicle A checked boxes: [list], Vehicle B checked boxes: [list]"""
 
 
 def extract_checkboxes(model, processor, crop_image_path):
@@ -298,16 +300,13 @@ def main():
     print(results['full_analysis'])
     print("=" * 70)
     
-    # Save results in the same directory as crop
-    with open(output_dir / "checkboxes.txt", 'w', encoding='utf-8') as f:
-        f.write(results['checkbox_data'])
-    
+    # Save Step 2 results (Step 1 already saved)
     with open(output_dir / "analysis.txt", 'w', encoding='utf-8') as f:
         f.write(results['full_analysis'])
     
     print(f"\n💾 All results saved in: output_qwen/{test_name}/")
     print(f"   - {Path(results['crop_path']).name}")
-    print(f"   - checkboxes.txt")
+    print(f"   - checkboxes.txt (saved after Step 1)")
     print(f"   - analysis.txt")
     print("\n✅ Two-step analysis complete!")
 
