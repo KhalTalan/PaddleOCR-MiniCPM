@@ -126,14 +126,10 @@ def load_paddleocr_vl():
     pipeline = PaddleOCRVL(
             # Expand boxes slightly to capture checkbox borders
             layout_unclip_ratio=1.05,
-            
             # Don't merge nearby boxes
             layout_nms=False,
-            
             # Keep layout detection for structured parsing
             use_layout_detection=True,
-            use_chart_recognition =True,
-            use_doc_unwarping =True,
     )
     print("✅ PaddleOCR-VL loaded")
     return pipeline
