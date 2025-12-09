@@ -253,6 +253,11 @@ def test_two_step_analysis(test_image_path, output_dir):
     # Step 1: Extract checkboxes from crop
     checkbox_data = extract_checkboxes(model, processor, crop_path)
     
+    # Save immediately after Step 1
+    with open(output_dir / "checkboxes.txt", 'w', encoding='utf-8') as f:
+        f.write(checkbox_data)
+    print(f"💾 Saved: {output_dir}/checkboxes.txt")
+    
     # Step 2: Generate full analysis using checkbox data
     full_analysis = generate_full_analysis(model, processor, str(test_image_path), checkbox_data)
     
