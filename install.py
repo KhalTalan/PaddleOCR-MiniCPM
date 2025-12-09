@@ -36,6 +36,7 @@ def check_installation():
         "Flash Attention": ("import flash_attn; print(f'Version: {flash_attn.__version__}')", 30),
         "PaddlePaddle": ("import paddle; print(f'Version: {paddle.__version__}')", 30),
         "PaddleOCR": ("from paddleocr import PaddleOCR; print('Import OK')", 30),
+        "PaddleOCR-VL": ("from paddleocr import PaddleOCRVL; print('VL Support OK')", 30),
         "Transformers": ("import transformers; print(f'Version: {transformers.__version__}')", 10),
     }
     
@@ -103,13 +104,20 @@ def main():
          "NumPy <2.0 (required by PaddleOCR)", False)
     )
     
-    # STEP 4: PaddlePaddle (compatible version)
+    # STEP 4: PaddlePaddle 3.2.1+ (REQUIRED for PaddleOCR-VL)
     installations.append(
-        ("pip install paddlepaddle-gpu==2.6.1 -i https://pypi.tuna.tsinghua.edu.cn/simple",
-         "PaddlePaddle GPU 2.6.1", False)
+        ("pip install paddlepaddle-gpu==3.2.1 -i https://www.paddlepaddle.org.cn/packages/stable/cu126/",
+         "PaddlePaddle GPU 3.2.1 (required for PaddleOCR-VL)", False)
     )
     
-    # STEP 5: PaddleOCR with dependencies
+    # STEP 5: Install safetensors special version (REQUIRED for PaddleOCR-VL)
+    # Different for Linux vs Windows
+    installations.append(
+        ("pip install https://paddle-whl.bj.bcebos.com/nightly/cu126/safetensors/safetensors-0.6.2.dev0-cp38-abi3-linux_x86_64.whl",
+         "SafeTensors (PaddleOCR-VL requirement)", True)  # Ignore errors if on Windows
+    )
+    
+    # STEP 6: PaddleOCR with VL support
     installations.extend([
         ("pip install opencv-python opencv-python-headless",
          "OpenCV", False),
@@ -117,14 +125,14 @@ def main():
         ("pip install shapely pyclipper lmdb imgaug",
          "Geometric dependencies", False),
         
-        ("pip install paddleocr==2.8.1",
-         "PaddleOCR 2.8.1", False),
+        ("pip install -U \"paddleocr[doc-parser]\"",
+         "PaddleOCR with VL (document parser) support", False),
         
         ("pip install tqdm rapidfuzz beautifulsoup4 lxml premailer openpyxl",
          "PaddleOCR additional dependencies", True),
     ])
     
-    # STEP 6: Transformers and related (AFTER flash-attn)
+    # STEP 7: Transformers and related (AFTER flash-attn)
     installations.extend([
         ("pip install transformers==4.44.2",
          "Transformers 4.44.2", False),
