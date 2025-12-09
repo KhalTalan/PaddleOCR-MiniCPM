@@ -76,26 +76,26 @@ def extract_section_12_crop(image_path, output_path=None):
     for block in blocks:
         bbox = block.get('block_bbox') # [x1, y1, x2, y2]
         text = block.get('block_content', '').lower()
-        print(f"      - Block: {text[:50]}...") # Debug print
+        # print(f"      - Block: {text[:100]}...") # Debug print
         
         # Header detection
         # Check standard text and HTML table content
-        if ("circonstances" in text and "12" in text) or ("circonstances" in text and "<table>" in text):
+        # "Vehicle A" often appears in the table headers for the checkboxes
+        is_table = "<table>" in text
+        match_keyword = ("circonstances" in text) or (is_table and "vehicle a" in text)
+        
+        if match_keyword:
             # If it's a table, it likely contains the whole section or most of it
             header_bbox = bbox
-            print(f"   📍 Found Header/Table: {bbox}")
-            # If it's a big table, we might just want to use this block + margin
-            if "<table>" in text:
-                 # It's a table block. It might be the whole thing.
-                 # Let's see if we should treat it as the Header or the Content.
-                 # If it covers a large area, it's the Content.
+            print(f"   📍 Found Candidate Block: {bbox} (Table={is_table})")
+            
+            if is_table:
                  h_block = bbox[3] - bbox[1]
-                 if h_block > 300: # Significant height
+                 if h_block > 200: # Significant height
                      print("   ✅ Found large Table block containing Section 12")
-                     # Use this as the content directly
                      content_bboxes.append(bbox)
-                     # Force header detection to true to bypass fallback
-                     if header_bbox is None: header_bbox = bbox 
+                     # Force header detection
+                     header_bbox = bbox 
                      
         elif "circonstances" in text and header_bbox is None:
             header_bbox = bbox
