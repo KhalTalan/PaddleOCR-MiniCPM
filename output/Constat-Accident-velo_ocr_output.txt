@@ -1,3 +1,113 @@
 OCR EXTRACTED TEXT
 ======================================================================
 
+1. constat amiable d'accident automobile
+2. Ne constitue pas une reconnaissance de responsabilité, mais un relevé
+des identités et des faits, servant à l'accélération du règlement.
+1. date de l'accident heure
+16/12/2012/11/11
+2. lieu (pays, n° dépt, localité)
+3. à signer obligatoirement par les DEUX conducteurs
+4. ONDES(31)
+5. 4. dégâts matériels autres qu'aux véhicules A et B
+6. 3. blessé(s) même léger(s)
+7. 5. témoins noms, adresses ét tél. (à souligner s'il s'agit d'un passager de A ou B)
+8. non
+9. oui
+10. non
+11. oui
+12. véhicule A
+13. 6. assuré souscripteur (voir attest, d'assur.)
+Nom
+(majuuc.) ROBERT
+14. Prénom Guillaume
+Adresse (rue et n°).
+15. Localité (et c. postal)
+16. N° de télé. (de 9 h. à 1
+17. L'Assuré peut-il récupérer la T.V.A. afférente au véhicule?
+18. non
+19. oui
+20. 7. véhicule
+21. 7. Vénicule
+Marque, type Vèle look SSS
+N° d'immatr. (ou de moteur).
+22. 8. sté d'assurance
+23. N° de contrat
+24. Agence (ou byreau ou courier) Min.mes 65, au. Min.mes. 3120 Toulouse
+25. N° de carte verte ___ (Pour les étrangers)
+26. Attest. ou  $ \} \text{valable jusqu’au carte verte} $
+27. Les dégâts matériels du véhicule sont-ils assurés? non □ oui □
+28. 9. conducteur (voir permis de conduire)
+29. Nom (majusc.) ROBERT
+30. Prénom Guillaume
+31. Adresso
+32. Permis de conduire n°
+33. catégorie (A,B,...) délivré par
+34. permis valable du ___ au
+35. (pour les catégories C, C1, D, E, F et les taxis)
+36. 12. circonstances
+37. Mettre une croix (x) dans chacune des cases utiles pour préciser le croquis.
+38. en stationnement 1
+39. quittait un stationnement 2
+40. prenait un stationnement 3
+41. sortait d'un parking, d'un lieu privé, d'un chemin de terre
+42. s'engageait dans un parking, 5 un lieu privé, un chemin de terre
+43. s'engageait sur une place à sens 6 giratoire
+44. roulait sur une place à sens giratoire
+45. 8 heurtait l'arrière de l'autre véhicule 8 qui roulait dans le même sens et sur la même file
+46. roulait dans le même sens et sur une file différente
+47. 10 changeait de file 10
+48. 11 doublait 11
+49. 12 virait à droite 12
+50. 13 virait à gauche 13
+51. 14 reculait 14
+52. 15 empiétait sur la partie de chaussée réservée à la circulation en sens inverse
+53. 16 venait de droite (dans un carrefour) 16
+54. 17 n'avait pas observé un signal de priorité
+55. ➔ indiquer le nombre de cases marquées d'une croix
+56. véhicule B
+57. 6. assuré souscripteur (voir attest. d'assur.)
+58. Nom PUIOL
+59. Adresse (rue et n°).
+60. Localité (et c. postal)31
+61. N° de télé. (de 9 h, à 17 h.)
+62. L'Assuré peut-il récupérer la T.V.A. afférente au véhicule?
+63. oui
+64. 7. véhicule
+65. 307
+66. N° d'immatr. (ou de moteur)
+67. 8. sté d'assurance GAN
+68. N° de contrat
+69. Agence (ou bureau ou courtier)
+70. N° de carte verte ___ (Pour les étrangers)
+71. Attest. ou  $ \} $  valable jusqu'au carte verte
+72. Les dégâts matériels du véhicule sont-ils assurés? non □ □ □ □ □
+73. 9. conducteur (voir permis de conduire)
+74. Nom
+75. (maju.sc.12
+76. Prénom
+77. Adresse
+Permis de conduire n°
+catégorie (A,B,...) délivré par At-Gore
+le 13 06 59
+permis valable du au.
+(pour les catégories C, C1, D, E, F et les taxis)
+78. 10. Indiquer par une flèche (→) le point de choc initial
+79. 11. dégâts apparents
+pédales, freins,
+Cadre, dérailleurs,
+foues
+80. 14.observations
+81. Telephone portable cassie +
+Caxque + Chaussure
+82. 13. croquis de l'accident
+83. Préciser : 1, le tracé des voies - 2, la direction (par des flèches) des véhicules A, B - 3, leur position au moment du choc - 4, les signaux routiers - 5, le nom des rues (ou routes).
+84. Vers St Capraus
+85. 15. signature des conducteurs
+86. 10. Indiquer par une flèche (→) le point de choc initial
+87. 11. dégâts apparents.
+pos de digit.
+88. 14. observations RAS
+89. • En cas de blessures ou en cas de dégâts matériels autres qu'aux véhicules A et B, relever les indications d'identité d'adresse et
+90. Ne rien modifier au constat après les signatures et la cánaration des avemnalsirac des 2 conducteurs.
+91. Voir déclaration de
