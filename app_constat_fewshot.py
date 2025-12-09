@@ -88,13 +88,25 @@ def load_minicpm():
     return model, tokenizer
 
 
-def extract_ocr_text_vl(pipeline, image_path):
+def extract_ocr_text_vl(pipeline, image_path, save_debug=True):
     """Extract text using PaddleOCR-VL"""
     print(f"🔍 OCR-VL: {Path(image_path).name}")
     
     # Use PaddleOCR-VL pipeline
     output = pipeline.predict(str(image_path))
     texts = []
+    
+    # Save debug outputs (JSON and Markdown)
+    if save_debug:
+        output_dir = Path(__file__).parent / "output"
+        output_dir.mkdir(exist_ok=True)
+        
+        for res in output:
+            # Save JSON and Markdown for debugging
+            image_name = Path(image_path).stem
+            res.save_to_json(save_path=str(output_dir / f"{image_name}_paddleocr_vl.json"))
+            res.save_to_markdown(save_path=str(output_dir / f"{image_name}_paddleocr_vl.md"))
+            print(f"   💾 Debug files saved: {image_name}_paddleocr_vl.json & .md")
     
     # Parse PaddleOCR-VL output
     for result in output:
