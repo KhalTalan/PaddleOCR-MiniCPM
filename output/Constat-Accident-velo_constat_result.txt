@@ -1,0 +1,42 @@
+CONSTAT AMIABLE ANALYSIS
+
+1. ACCIDENT DETAILS
+Date: 16/2/2014, Time: 4h39
+Location: ONDES C3, Rue de la Libération, 62000 Saint-Étienne, France
+Injuries: No | Other damage: Yes
+Witnesses: Robert Guillame (Vehicle A), Poul Guillaume (Vehicle B)
+
+2. VEHICLE A (Left/Blue)
+Driver: ROBERT GUILLAME, DOB: 27/8/1975
+Address: 16 rue des Moulins, 62000 Saint-Étienne, Phone: 06 22 33 45 23
+Vehicle: Peugeot 307, Reg: D29, Cat: B, Valid until 29/10/25
+Insurance: GAN #5092052666, valid 18/01/24-18/01/25
+Damage: Front right fender and bumper
+Observation: "N'avait pas de clignotant!" - BLAMES Vehicle B for no turn signal
+
+3. VEHICLE B (Right/Yellow)
+Driver: POUL GUILLAUME, DOB: 29/4/1955
+Address: 16 rue des Moulins, 62000 Saint-Étienne, Phone: 06 32 32 18 29
+Vehicle: Peugeot 307, Reg: D29, Cat: B, Valid until 29/10/25
+Insurance: FLITTER #22012 3975, valid 29/10/25-29/11/26
+Damage: Front left headlight, front bumper
+Observation: "Était sur son téléphone!" - BLAMES Vehicle A for phone distraction
+
+4. CIRCUMSTANCES (Section 12 Image Analysis)
+- Vehicle A was in stationing (Box 8 checked) at a parking space.
+- Vehicle B was turning right (Box 12 checked).
+- All other boxes were not checked.
+
+5. RECONSTRUCTION
+Step 1: Vehicle B was turning right on Rue de la Libération.
+Step 2: Vehicle A was stationary in the parking spot.
+Step 3: As Vehicle B turned, it collided with the rear of Vehicle A.
+
+6. FAULT ANALYSIS
+- Box 8 indicates that Vehicle A was in stationing, which is generally considered as being more responsible if the collision occurs from behind.
+- Box 12 shows that Vehicle B was turning right without signaling, indicating negligence.
+- Based on French liability rules, Vehicle B is partially liable due to its failure to signal properly.
+
+Conclusion:
+- Vehicle A bears primary fault (rear-end collision).
+- Vehicle B shares secondary fault due to lack of proper signaling during the turn.
