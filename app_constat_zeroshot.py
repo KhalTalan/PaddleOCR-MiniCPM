@@ -128,7 +128,7 @@ def load_paddleocr_vl():
             layout_threshold=0.5,
             
             # Expand boxes slightly to capture checkbox borders
-            layout_unclip_ratio=1.05,
+            layout_unclip_ratio=1.5,
             
             # Keep individual boxes separate
             layout_merge_bboxes_mode="union",
@@ -138,6 +138,7 @@ def load_paddleocr_vl():
             
             # Keep layout detection for structured parsing
             use_layout_detection=True,
+            use_chart_recognition =True,
     )
     print("✅ PaddleOCR-VL loaded")
     return pipeline
@@ -148,7 +149,7 @@ def extract_ocr_text_vl(pipeline, image_path, save_debug=True):
     print(f"🔍 OCR-VL: {Path(image_path).name}")
     
     # Use PaddleOCR-VL pipeline
-    output = pipeline.predict(str(image_path), prompt_label="ocr")
+    output = pipeline.predict(str(image_path), prompt_label="table")
     markdown_content = ""
     
     # Save debug outputs (JSON and Markdown)
