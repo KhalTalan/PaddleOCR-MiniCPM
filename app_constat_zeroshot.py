@@ -211,114 +211,72 @@ def load_minicpm():
 
 def build_zero_shot_prompt(ocr_texts):
     """
-    Comprehensive zero-shot prompt with visual checkbox verification guide.
-    Provides detailed visual examples of what checked/unchecked boxes look like.
+    Direct, action-oriented prompt that requests analysis immediately.
+    Removes instructional language that confuses the model.
     """
     ocr_content = "\n".join(ocr_texts)
     
-    prompt = f"""You are analyzing a French Constat Amiable d'Accident Automobile (official accident report form).
+    prompt = f"""Analyze this French accident report (Constat Amiable) and provide the structured output below.
 
-OCR EXTRACTED TEXT:
+OCR TEXT FROM IMAGE:
 {ocr_content}
 
 ---
 
-⚠️⚠️⚠️ CRITICAL INSTRUCTIONS FOR SECTION 12 (CIRCUMSTANCES) ⚠️⚠️⚠️
+OUTPUT THE FOLLOWING 7 SECTIONS:
 
-**Understanding Section 12:**
-Section 12 has TWO COLUMNS of checkboxes - one for Vehicle A (left) and one for Vehicle B (right).
-Each column has 17 numbered boxes with circumstance descriptions.
+**1. ACCIDENT DETAILS**
+Date: [from image]
+Time: [from image]
+Location: [from image]
+Injuries: Yes/No
+Other damage: Yes/No
+Witnesses: [if any]
 
-**The OCR text above lists all the text labels, but this DOES NOT tell you which boxes are checked!**
+**2. VEHICLE A (Left side)**
+Driver: [name, DOB]
+Address: [full address]
+Phone: [number]
+Vehicle: [make/model]
+Registration: [number]
+Insurance: [company, contract #]
+Damage: [description]
+Observation: "[exact quote from driver]" - [Does this blame the other driver?]
 
-**VISUAL CHECKBOX APPEARANCE GUIDE:**
+**3. VEHICLE B (Right side)**
+[Same details as Vehicle A]
 
-UNCHECKED Box Examples (DO NOT LIST THESE):
-- □ Empty white/light gray square
-- ☐ Box with just an outline, nothing inside
-- Example: If you see a white empty box next to "1", then Box 1 is NOT checked
+**4. CIRCUMSTANCES - Section 12 Checkboxes**
 
-CHECKED Box Examples (ONLY LIST THESE):
-- ☑ Box with a checkmark ✓ inside
-- ⊠ Box with an X inside  
-- ☒ Box that appears filled/dark/shaded
-- Example: If you see ✓ or X or dark fill in the box next to "12", then Box 12 IS checked
+CRITICAL: Look at the actual IMAGE in Section 12 (middle of form). 
+The OCR above lists ALL 17 box labels, but you must VISUALLY check which boxes have checkmarks.
 
-**YOUR VERIFICATION PROCESS:**
+For each vehicle, inspect boxes 1-17:
+- EMPTY box (☐) = white/light = NOT checked
+- MARKED box (☑/✓/X) = has mark inside = IS checked
 
-Step 1: Locate Section 12 in the image (middle section with numbered boxes)
+Vehicle A checked boxes: [list only numbers with visible marks, e.g., "8, 14" or "None"]
+Vehicle B checked boxes: [list only numbers with visible marks, e.g., "12" or "None"]
 
-Step 2: For Vehicle A (LEFT column):
-- Scan boxes 1-17 from top to bottom
-- For EACH box, look at the small square itself (not the text)
-- Ask yourself: "Is this box WHITE/EMPTY or does it have a MARK inside?"
-- ONLY list the box numbers where you clearly see a mark/checkmark/X
+**5. RECONSTRUCTION**
+[What happened based on the checked boxes above]
 
-Step 3: For Vehicle B (RIGHT column):
-- Do the same process for the right column boxes 1-17
+**6. FAULT ANALYSIS**
+[Who is at fault and why, based on French traffic law and checked boxes]
 
-Step 4: Output ONLY the boxes you visually confirmed as marked
-
-**IMPORTANT RULES:**
-- When in doubt, assume the box is NOT checked
-- If a box looks ambiguous or unclear, do NOT list it
-- Most accidents have only 1-3 boxes checked per vehicle, NOT 8-10+
-- The OCR listing a box's text does NOT mean it's checked!
-
----
-
-YOUR ANALYSIS FORMAT:
+**7. SUMMARY**
+[2-3 sentences: date, location, accident description, fault conclusion]
 
 ---
-CONSTAT AMIABLE ANALYSIS
 
-1. ACCIDENT DETAILS
-Date: [from Section 1]
-Time: [from Section 1]
-Location: [from Section 2]
-Injuries: [Yes/No from Section 3]
-Other damage: [Yes/No from Section 4]
-Witnesses: [from Section 5]
+IMPORTANT REMINDERS:
+- The OCR lists all box labels (1-17) but this doesn't mean they're checked
+- Visually verify each checkbox in the image - most will be EMPTY
+- Only list box numbers where you see an actual checkmark/X/fill
+- Quote driver observations exactly
+- Base all conclusions on visually verified checkboxes
 
-2. VEHICLE A (Left side)
-Driver: [Name, DOB from Section 9]
-Address: [Full address]
-Phone: [Phone number]
-Vehicle: [Make/Model from Section 7]
-Registration: [Number]
-Insurance: [Company from Section 8, Contract #]
-License: [Category, Number, Valid until]
-Damage: [from Section 11]
-Observation: "[EXACT quote from Section 14]" - [Does this BLAME other driver? Yes/No + explanation]
-
-3. VEHICLE B (Right side)
-[Same structure as Vehicle A]
-
-4. CIRCUMSTANCES (Section 12) **VISUAL VERIFICATION REQUIRED**
-
-Vehicle A Checked Boxes: [e.g., "Box 8 ☑" OR "No boxes checked" OR "Box 2 ☑, Box 14 ☑"]
-Vehicle B Checked Boxes: [e.g., "Box 12 ☑" OR "No boxes checked"]
-
-(Remember: The OCR shows all 17 box labels, but you must verify visually which have checkmarks)
-
-5. RECONSTRUCTION
-[Based ONLY on the boxes you verified as checked above, describe what happened step-by-step]
-
-6. FAULT ANALYSIS
-[Apply French liability rules based on the verified checked boxes - be specific about which checked boxes led to your conclusion]
-
-7. SUMMARY
-[Brief: date, location, what happened, who's primarily at fault and why]
----
-
-GENERAL RULES:
-- Be factual and concise
-- Write "Not legible" if you can't read something
-- DO NOT invent information
-- Quote observations exactly
-- Most constats have 1-3 checked boxes per vehicle, not many boxes
-
-Now carefully analyze the provided Constat image, paying special attention to visually verifying Section 12 checkboxes."""
+NOW PROVIDE THE ANALYSIS:"""
     
     return prompt
 
