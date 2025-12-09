@@ -97,15 +97,24 @@ def extract_ocr_text_vl(pipeline, image_path):
     texts = []
     
     # Parse PaddleOCR-VL output
-    # The output is a list of results, each with OCR data
     for result in output:
-        # Try different attributes that might contain the text
+        result_dict = None
+        
+        # Try to get result as dict
         if hasattr(result, 'json'):
-            # Parse JSON output
-            import json
-            result_dict = json.loads(result.json() if callable(result.json) else result.json)
+            result_json = result.json
+            if callable(result_json):
+                result_json = result_json()
             
-            # Extract text from various possible structures
+            # Check if it's already a dict or needs parsing
+            if isinstance(result_json, dict):
+                result_dict = result_json
+            elif isinstance(result_json, str):
+                import json
+                result_dict = json.loads(result_json)
+        
+        # Extract text from dict structure
+        if result_dict:
             if 'ocr_text' in result_dict:
                 texts.extend([line.strip() for line in result_dict['ocr_text'].split('\n') if line.strip()])
             elif 'text' in result_dict:
@@ -124,9 +133,11 @@ def extract_ocr_text_vl(pipeline, image_path):
         # Debug: print result structure if no text found
         if not texts:
             print(f"   ⚠️ Debug - Result type: {type(result)}")
-            print(f"   ⚠️ Debug - Result attributes: {dir(result)}")
-            if hasattr(result, '__dict__'):
-                print(f"   ⚠️ Debug - Result dict: {result.__dict__}")
+            print(f"   ⚠️ Debug - Has json: {hasattr(result, 'json')}")
+            if hasattr(result, 'json'):
+                print(f"   ⚠️ Debug - JSON type: {type(result.json if not callable(result.json) else result.json())}")
+                print(f"   ⚠️ Debug - JSON content: {result.json if not callable(result.json) else result.json()}")
+            print(f"   ⚠️ Debug - Result attributes: {[a for a in dir(result) if not a.startswith('_')]}")
     
     print(f"   Found {len(texts)} text blocks")
     return texts
