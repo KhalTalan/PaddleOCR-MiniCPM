@@ -14,9 +14,10 @@ import os
 import sys
 from dotenv import load_dotenv
 
-# Import cropping utility
+# Import utilities
 sys.path.insert(0, str(Path(__file__).parent))
 from utils.crop_utils import extract_section_12_crop
+from utils.preprocess import preprocess_image
 
 load_dotenv()
 
@@ -141,8 +142,8 @@ Box 1 (stationnement): ☐ EMPTY or ☑ CHECKED (confidence %)
 Box 17 (signal priorité): ☐ EMPTY or ☑ CHECKED (confidence %)
 Then
 MANUAL COUNTS :
-Vehicle A count: [read number]
-Vehicle B count: [read number]
+Vehicle A count: [read number] (confidence %)
+Vehicle B count: [read number] (confidence %)
 
 VERIFICATION: Your detected count must match the printed count. If mismatch, recheck uncertain boxes, the important part is stating each box what it represents and wether its checked or not.
 """
@@ -253,16 +254,24 @@ def test_two_step_analysis(test_image_path, output_dir):
         print("❌ Cropping failed")
         return None
     
-    # Step 1: Extract checkboxes from crop
-    checkbox_data = extract_checkboxes(model, processor, crop_path)
+    # Preprocess crop for better checkbox detection
+    print("\n🎨 Preprocessing crop...")
+    crop_enhanced = preprocess_image(crop_path, output_dir=output_dir)
+    
+    # Step 1: Extract checkboxes from ENHANCED crop
+    checkbox_data = extract_checkboxes(model, processor, crop_enhanced)
     
     # Save immediately after Step 1
     with open(output_dir / "checkboxes.txt", 'w', encoding='utf-8') as f:
         f.write(checkbox_data)
     print(f"💾 Saved: {output_dir}/checkboxes.txt")
     
-    # Step 2: Generate full analysis using checkbox data
-    full_analysis = generate_full_analysis(model, processor, str(test_image_path), checkbox_data)
+    # Preprocess full image for Step 2
+    print("\n🎨 Preprocessing full image...")
+    full_enhanced = preprocess_image(str(test_image_path), output_dir=output_dir)
+    
+    # Step 2: Generate full analysis using ENHANCED full image
+    full_analysis = generate_full_analysis(model, processor, full_enhanced, checkbox_data)
     
     return {
         'checkbox_data': checkbox_data,
