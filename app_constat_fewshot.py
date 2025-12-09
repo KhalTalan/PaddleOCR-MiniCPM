@@ -144,41 +144,50 @@ def load_expected_answer(path):
         return f.read()
 
 
+import gc
+
 def analyze_constat_few_shot(test_image_path, ocr=None, model=None, tokenizer=None):
     """
     Analyze a Constat image using few-shot learning.
     Uses one example (example_constat.png + expected_answer_constat.txt) to guide the model.
     """
-    # Load models if not provided
+    # ================== STEP 1: OCR PROCESSING (PaddleOCR) ==================
+    # We run OCR first, then clear it from memory to save VRAM for MiniCPM
+    
     if ocr is None:
         ocr = load_paddleocr()
-    if model is None or tokenizer is None:
-        model, tokenizer = load_minicpm()
     
-    # ================== PREPARE FEW-SHOT EXAMPLE ==================
-    print("\n📚 Preparing few-shot example...")
-    
-    # Load example image and expected answer
+    # Check files exist
     if not EXAMPLE_IMAGE_PATH.exists():
         raise FileNotFoundError(f"Example image not found: {EXAMPLE_IMAGE_PATH}\n"
                                 f"Please copy your example Constat image to: {EXAMPLE_IMAGE_PATH}")
     
     if not EXPECTED_ANSWER_PATH.exists():
         raise FileNotFoundError(f"Expected answer not found: {EXPECTED_ANSWER_PATH}")
-    
+
+    print("\n📚 Processing example image OCR...")
     example_image = Image.open(EXAMPLE_IMAGE_PATH).convert('RGB')
     example_ocr_texts = extract_ocr_text(ocr, EXAMPLE_IMAGE_PATH)
-    example_prompt = build_prompt(example_ocr_texts)  # Same prompt for consistency
+    example_prompt = build_prompt(example_ocr_texts)
     expected_answer = load_expected_answer(EXPECTED_ANSWER_PATH)
     
-    # ================== PREPARE TEST IMAGE ==================
-    print("\n🎯 Preparing test image...")
-    
+    print("\n🎯 Processing test image OCR...")
     test_image = Image.open(test_image_path).convert('RGB')
     test_ocr_texts = extract_ocr_text(ocr, test_image_path)
-    test_prompt = build_prompt(test_ocr_texts)  # Same prompt for consistency
+    test_prompt = build_prompt(test_ocr_texts)
     
-    # ================== BUILD FEW-SHOT MESSAGES ==================
+    # FREE GPU MEMORY: Delete OCR and clear cache
+    print("🧹 Clearing OCR from memory...")
+    del ocr
+    gc.collect()
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
+    
+    # ================== STEP 2: VLM INFERENCE (MiniCPM-V-2_6) ==================
+    
+    if model is None or tokenizer is None:
+        model, tokenizer = load_minicpm()
+    
     print("\n🤖 Running few-shot inference...")
     
     msgs = [
@@ -189,7 +198,6 @@ def analyze_constat_few_shot(test_image_path, ocr=None, model=None, tokenizer=No
         {'role': 'user', 'content': [test_image, test_prompt]}
     ]
     
-    # ================== INFERENCE ==================
     try:
         answer = model.chat(
             image=None,  # Images are in msgs
@@ -234,13 +242,13 @@ def main():
     print("📊 RÉSULTATS DE L'ANALYSE")
     print("=" * 70)
     
-    print(f"\n📝 Texte extrait ({len(result['ocr_texts'])} blocs):")
-    for i, text in enumerate(result['ocr_texts'][:5], 1):
+    print(f"\n📝 Texte extrait ({len(result['test_ocr_texts'])} blocs):")
+    for i, text in enumerate(result['test_ocr_texts'][:5], 1):
         preview = text[:80] + "..." if len(text) > 80 else text
         print(f"   {i}. {preview}")
     
-    if len(result['ocr_texts']) > 5:
-        print(f"   ... et {len(result['ocr_texts']) - 5} autres")
+    if len(result['test_ocr_texts']) > 5:
+        print(f"   ... et {len(result['test_ocr_texts']) - 5} autres")
     
     print("\n🤖 Analyse structurée:")
     print("-" * 70)
