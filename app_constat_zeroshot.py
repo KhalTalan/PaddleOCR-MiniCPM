@@ -70,10 +70,12 @@ def extract_ocr_text_vl(pipeline, image_path, save_debug=True):
             res.save_to_json(save_path=str(image_output_dir / "paddleocr_vl.json"))
             res.save_to_markdown(save_path=str(image_output_dir / "paddleocr_vl.md"))
             print(f"   💾 Debug files saved in: output/{image_name}/")
-            
-            # Get markdown content
-            if hasattr(res, 'markdown'):
-                markdown_content = res.markdown
+    
+    # Read the markdown file that was just saved
+    if save_debug:
+        markdown_file = image_output_dir / "paddleocr_vl.md"
+        if markdown_file.exists():
+            markdown_content = markdown_file.read_text(encoding='utf-8')
     
     # Convert markdown to list of text blocks (split by newlines to preserve structure)
     texts = [line.strip() for line in markdown_content.split('\n') if line.strip()]
