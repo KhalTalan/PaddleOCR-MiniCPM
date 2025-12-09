@@ -133,6 +133,27 @@ def build_zero_shot_prompt(ocr_texts):
 OCR EXTRACTED TEXT:
 {ocr_content}
 
+⚠️⚠️⚠️ CRITICAL - READ THIS ABOUT SECTION 12 (CIRCUMSTANCES) ⚠️⚠️⚠️
+
+The OCR text above lists all 17 circumstance box labels (Box 1 through Box 17).
+THIS DOES NOT MEAN THESE BOXES ARE CHECKED!
+
+The OCR simply extracted the TEXT LABELS next to the boxes.
+You MUST visually look at the IMAGE to see which boxes actually have checkmarks.
+
+HOW TO VERIFY A BOX IS CHECKED:
+1. Look at the actual checkbox square in the image
+2. If the box is WHITE/EMPTY (☐) → NOT CHECKED - DO NOT LIST IT
+3. If the box has a mark inside (✓, X, ☑, or any dark mark) → CHECKED - LIST THIS NUMBER
+4. When in doubt, assume NOT CHECKED
+
+For Vehicle A and Vehicle B, ONLY list the box numbers (1-17) that you can visually see have marks inside them.
+If you see NO checkmarks at all, write "No boxes visually checked"
+
+DO NOT list a box just because the OCR extracted its text label!
+
+---
+
 YOUR TASK:
 Provide a complete structured analysis in EXACTLY this format:
 
@@ -160,25 +181,18 @@ Observation: "[Quote EXACT text from Section 14]" - [State if this BLAMES the ot
 [Same structure as Vehicle A but for right side]
 
 4. CIRCUMSTANCES (Section 12)
-Vehicle A: [List ONLY the box numbers that have visible checkmarks/crosses]
-Vehicle B: [List ONLY the box numbers that have visible checkmarks/crosses]
-
-⚠️ CRITICAL FOR SECTION 12:
-- VISUALLY INSPECT the image for checkmarks (✓, X, ☑)
-- The OCR lists all 17 box labels but most are EMPTY (☐)
-- ONLY report numbers for boxes with visible marks
-- If you see NO checked boxes, write "No boxes checked"
-- DO NOT guess or assume - verify visually
+Vehicle A: [ONLY list box numbers YOU SEE CHECKED in the image - e.g., "Box 8" or "No boxes visually checked"]
+Vehicle B: [ONLY list box numbers YOU SEE CHECKED in the image - e.g., "Box 12" or "No boxes visually checked"]
 
 5. RECONSTRUCTION
 [Provide step-by-step reconstruction based ONLY on:
-- The checked boxes in Section 12
+- The checked boxes you VISUALLY verified in Section 12
 - The damage descriptions in Section 11
 - The sketch in Section 13 if legible]
 
 6. FAULT ANALYSIS
 [Apply French traffic liability rules (Barème de Responsabilité):
-- Identify the primary maneuver from checked boxes
+- Identify the primary maneuver from VISUALLY verified checked boxes
 - Assign liability percentages (e.g., 75-100% vs 0-25%)
 - Justify with specific box numbers and French law principles]
 
@@ -186,13 +200,12 @@ Vehicle B: [List ONLY the box numbers that have visible checkmarks/crosses]
 [1-2 sentences: Date, location, what happened, fault conclusion]
 ---
 
-CRITICAL RULES:
-1. Use ONLY information visible in THIS image and the OCR text above
-2. Write "Not legible" or "Not specified" if information is unclear
-3. For Section 12 (circumstances), carefully examine the IMAGE - only list boxes with actual checkmarks
-4. Quote driver observations verbatim, then analyze if they blame the other party
-5. Be concise and factual
-6. DO NOT invent or assume information not present in the document
+ADDITIONAL RULES:
+- Use ONLY information visible in THIS image
+- Write "Not legible" or "Not specified" if information is unclear
+- Quote driver observations verbatim, then analyze if they blame the other party
+- Be concise and factual
+- DO NOT invent or assume information not present
 
 Now analyze the Constat image provided."""
     
