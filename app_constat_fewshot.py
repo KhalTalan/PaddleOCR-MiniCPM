@@ -317,19 +317,13 @@ def main():
     # Save Example OCR output
     example_ocr_path = example_output_dir / "ocr_text.txt"
     with open(example_ocr_path, 'w', encoding='utf-8') as f:
-        f.write("EXAMPLE OCR EXTRACTED TEXT\n")
-        f.write("=" * 70 + "\n\n")
-        for i, text in enumerate(result['example_ocr_texts'], 1):
-            f.write(f"{i}. {text}\n")
+        f.write("\n".join(result['example_ocr_texts']))
     print(f"💾 Example OCR sauvegardé: output/example_constat/ocr_text.txt")
     
     # Save Test OCR output
     ocr_output_path = test_output_dir / "ocr_text.txt"
     with open(ocr_output_path, 'w', encoding='utf-8') as f:
-        f.write("OCR EXTRACTED TEXT\n")
-        f.write("=" * 70 + "\n\n")
-        for i, text in enumerate(result['test_ocr_texts'], 1):
-            f.write(f"{i}. {text}\n")
+        f.write("\n".join(result['test_ocr_texts']))
     print(f"💾 OCR sauvegardé: output/{test_image_name}/ocr_text.txt")
     
     print("✅ Terminé!")
