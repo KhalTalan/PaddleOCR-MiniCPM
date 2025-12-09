@@ -125,10 +125,10 @@ def load_paddleocr_vl():
     from paddleocr import PaddleOCRVL
     pipeline = PaddleOCRVL(
             # Lower threshold to catch small checkboxes
-            layout_threshold=0.25,
+            layout_threshold=0.5,
             
             # Expand boxes slightly to capture checkbox borders
-            layout_unclip_ratio=1.15,
+            layout_unclip_ratio=1.05,
             
             # Keep individual boxes separate
             layout_merge_bboxes_mode="union",
