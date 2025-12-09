@@ -1,57 +1,51 @@
 ---
-**CONSTAT AMIABLE ANALYSIS**
+CONSTAT AMIABLE ANALYSIS
 
-1. **ACCIDENT DETAILS**
-   - Date: 16/12/2012
-   - Time: 11/11
-   - Location: ONDES (31)
-   - Injuries: [Yes, checked in Section 3]
-   - Other damage: [Yes, checked in Section 4]
-   - Witnesses: Not specified
+1. ACCIDENT DETAILS
+Date: 16/12/2012, Time: 11h34, Location: ONDES (31), Injuries: Yes (Blessé(s) même léger(s)), Other damage: No, Witnesses: Not specified.
 
-2. **VEHICLE A (Left side of form)**
-   - Driver: ROBERT GUILLAUME
-   - Address: [Not fully visible], Phone: [Not fully visible]
-   - Vehicle: Vèle look SSS
-   - Insurance: Assurances GAN
-   - License: Category not specified, Number and Validity details are not clear.
-   - Damage: 
-     - Pedals, brakes,
-     - Frame, derailleur,
-     - Wheel
-   - Observation: "Telephone portable cassie + Caxque + Chaussure" 
+2. VEHICLE A (Left side of form)
+Driver: ROBERT GUILLAUME, DOB: Not visible, Address: [Full address], Phone: Not visible.
+Vehicle: Make/Model not clearly readable, Reg: Not visible.
+Insurance: Not specified, Contract: Not visible, Valid: Not visible.
+License: Category not specified, Number: Not visible, Valid until: Not visible.
+Damage: Pedals, brakes, frame, derailleur, foues, Telephone portable cassie + Caxque + Chaussure.
+Observation: "Not specified in the text."
 
-3. **VEHICLE B (Right side of form)**
-   - Driver: PUILOL
-   - Address: [Not fully visible], Phone: [Not fully visible]
-   - Vehicle: Peugeot 307
-   - Insurance: GAN
-   - License: Category not specified, Number and Validity details are not clear.
+3. VEHICLE B (Right side of form)
+Driver: PUIOL, Address and Phone: Not visible, Vehicle: Make/Model not clearly readable, Reg: Not visible.
+Insurance: Not specified, Contract: Not visible, Valid: Not visible.
+License: Category not specified, Number: Not visible, Valid until: Not visible.
+Damage: Not specified in the text.
 
-4. **CIRCUMSTANCES (Section 12)**
-   - Vehicle A:
-     - Box 8: Roulait dans le même sens et sur la même file
-     - Box 10: Changeait de file
-     - Box 11: Doublait
-     - Box 12: Virait à droite
-     - Box 13: Virait à gauche
-     - Box 14: Reculait
-     - Box 15: Empli était sur la partie de chaussée réservée à la circulation en sens inverse
-     - Box 16: Venait de droite (dans un carrefour)
-     - Box 17: N'avait pas observé un signal de priorité
-   - Vehicle B:
-     - No checkmarks or cross marks observed for this vehicle
+4. CIRCUMSTANCES (Section 12)
+Vehicle A:
+- 1: Indicated by a checkmark.
+- 2: Indicated by a checkmark.
+- 3: Indicated by a checkmark.
+- 4: Indicated by a checkmark.
+- 5: Indicated by a checkmark.
+- 6: Indicated by a checkmark.
+- 7: Indicated by a checkmark.
+- 8: Indicated by a checkmark.
+- 9: Indicated by a checkmark.
+- 10: Indicated by a checkmark.
+- 11: Indicated by a checkmark.
+- 12: Indicated by a checkmark.
+- 13: Indicated by a checkmark.
+- 14: Indicated by a checkmark.
+- 15: Indicated by a checkmark.
+- 16: Indicated by a checkmark.
+- 17: Indicated by a checkmark.
 
-5. **RECONSTRUCTION**
-   - Based on the checkboxes from Section 12, it appears that Vehicle A was moving in the same direction as Vehicle B but changed lanes while Vehicle A was turning right. Vehicle B might have been reversing or changing lanes too. The exact positions at the time of impact can be inferred from the sketch in Section 13, but it is partially obscured.
+Vehicle B:
+No boxes checked.
 
-6. **FAULT ANALYSIS**
-   - Vehicle A's fault likely lies with changing lanes when another vehicle had the right of way (Box 10). Vehicle B seems to have been either reversing or changing lanes, which could lead to a collision if both vehicles were in close proximity.
-   - Based on French traffic liability rules, Vehicle A would bear more responsibility due to changing lanes without ensuring safety first.
+5. RECONSTRUCTION
+Based on Section 12, the accident appears to involve Vehicle A making an illegal maneuver or crossing a line that led to a collision with Vehicle B. The specific details from Section 11 suggest minor physical damages like pedal issues, brake problems, and structural damage to the vehicle's frame and gear components. The sketch in Section 13 shows the positions of both vehicles at the point of impact, indicating Vehicle A was likely moving across a lane or boundary which resulted in contact with Vehicle B.
 
-7. **SUMMARY**
-   - Date: December 16, 2012
-   - Location: ONDES (31)
-   - Incident involved injuries and other damages to two vehicles.
-   - Vehicle A driver Robert Guillaume changed lanes while turning right, leading to an accident involving Vehicle B driven by PUILOL.
-   - Vehicle A bears primary fault due to lane change without proper signaling or checking for oncoming traffic.
+6. FAULT ANALYSIS
+According to French traffic liability rules, the primary fault seems to be with Vehicle A due to its maneuvering actions indicated in Section 12. Vehicle B may have been following standard traffic regulations but could also be partially at fault if it did not react appropriately to Vehicle A's movements. Based on the provided information, Vehicle A is primarily liable for the accident.
+
+7. SUMMARY
+Date: 16/12/2012, Time: 11h34, Location: ONDES (31). Vehicle A made an illegal maneuver leading to a collision with Vehicle B, causing minor damages to Vehicle A and potential injuries to the occupants. Vehicle A bears primary responsibility for the accident based on the evidence provided.
