@@ -79,9 +79,24 @@ def extract_section_12_crop(image_path, output_path=None):
         print(f"      - Block: {text[:50]}...") # Debug print
         
         # Header detection
-        if "circonstances" in text and "12" in text:
+        # Check standard text and HTML table content
+        if ("circonstances" in text and "12" in text) or ("circonstances" in text and "<table>" in text):
+            # If it's a table, it likely contains the whole section or most of it
             header_bbox = bbox
-            print(f"   📍 Found Header: {bbox}")
+            print(f"   📍 Found Header/Table: {bbox}")
+            # If it's a big table, we might just want to use this block + margin
+            if "<table>" in text:
+                 # It's a table block. It might be the whole thing.
+                 # Let's see if we should treat it as the Header or the Content.
+                 # If it covers a large area, it's the Content.
+                 h_block = bbox[3] - bbox[1]
+                 if h_block > 300: # Significant height
+                     print("   ✅ Found large Table block containing Section 12")
+                     # Use this as the content directly
+                     content_bboxes.append(bbox)
+                     # Force header detection to true to bypass fallback
+                     if header_bbox is None: header_bbox = bbox 
+                     
         elif "circonstances" in text and header_bbox is None:
             header_bbox = bbox
             # print(f"   📍 Found Header (fuzzy): {bbox}")
