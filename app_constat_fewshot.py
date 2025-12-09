@@ -98,46 +98,23 @@ def extract_ocr_text_vl(pipeline, image_path):
     
     # Parse PaddleOCR-VL output
     for result in output:
-        result_dict = None
-        
-        # Try to get result as dict
         if hasattr(result, 'json'):
             result_json = result.json
             if callable(result_json):
                 result_json = result_json()
             
-            # Check if it's already a dict or needs parsing
-            if isinstance(result_json, dict):
-                result_dict = result_json
-            elif isinstance(result_json, str):
-                import json
-                result_dict = json.loads(result_json)
-        
-        # Extract text from dict structure
-        if result_dict:
-            if 'ocr_text' in result_dict:
-                texts.extend([line.strip() for line in result_dict['ocr_text'].split('\n') if line.strip()])
-            elif 'text' in result_dict:
-                texts.append(result_dict['text'].strip())
-            elif 'result' in result_dict and isinstance(result_dict['result'], list):
-                for item in result_dict['result']:
-                    if 'text' in item:
-                        texts.append(item['text'].strip())
-        
-        # Try direct attribute access
-        if hasattr(result, 'ocr_text') and result.ocr_text:
-            texts.extend([line.strip() for line in result.ocr_text.split('\n') if line.strip()])
-        elif hasattr(result, 'text') and result.text:
-            texts.append(result.text.strip())
-        
-        # Debug: print result structure if no text found
-        if not texts:
-            print(f"   ⚠️ Debug - Result type: {type(result)}")
-            print(f"   ⚠️ Debug - Has json: {hasattr(result, 'json')}")
-            if hasattr(result, 'json'):
-                print(f"   ⚠️ Debug - JSON type: {type(result.json if not callable(result.json) else result.json())}")
-                print(f"   ⚠️ Debug - JSON content: {result.json if not callable(result.json) else result.json()}")
-            print(f"   ⚠️ Debug - Result attributes: {[a for a in dir(result) if not a.startswith('_')]}")
+            # Extract from PaddleOCR-VL structure
+            if isinstance(result_json, dict) and 'res' in result_json:
+                res = result_json['res']
+                
+                # Get parsing results list
+                if 'parsing_res_list' in res:
+                    for block in res['parsing_res_list']:
+                        # Extract text content from each block
+                        if 'block_content' in block and block['block_content']:
+                            content = block['block_content'].strip()
+                            if content:
+                                texts.append(content)
     
     print(f"   Found {len(texts)} text blocks")
     return texts
