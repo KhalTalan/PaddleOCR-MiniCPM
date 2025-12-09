@@ -126,6 +126,10 @@ def build_checkbox_prompt():
     """Prompt for Step 1: Extract checkboxes from crop"""
     return """Analyze this Section (Circonstances) checkboxes.
 
+HOW TO DETECT CHECKED BOXES:
+- CHECKED: Box contains X, ✓, tick mark, cross, scribble, or any ink/marking inside
+- EMPTY: Box is blank/white with no marks inside
+
 For VEHICLE A (Left column) - List all 17 boxes:
 Box 1 (stationnement): ☐ EMPTY or ☑ CHECKED (confidence %)
 ...
