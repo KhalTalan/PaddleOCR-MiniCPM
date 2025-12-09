@@ -108,96 +108,92 @@ def extract_ocr_text(ocr, image_path):
     return texts
 
 
-def build_training_prompt(ocr_texts):
-    """
-    Detailed prompt for the training example.
-    Teaches the model the format using the example data.
-    """
-    ocr_content = "\n".join(ocr_texts)
-    
-    prompt = f"""Analyze this French Constat Amiable (accident report) and provide a structured analysis.
-
-OCR TEXT:
-{ocr_content}
-
-Follow this 7-section format:
-1. Accident details (date, time, location, injuries, witness)
-2. Vehicle A - Extract all info + damage + driver observation
-3. Vehicle B - Extract all info + damage + driver observation
-4. Circumstances - CRITICAL: Carefully check Section 12 image, only list CHECKED boxes
-5. Reconstruction - Step-by-step based on checked boxes + damage
-6. Fault analysis - Apply French liability rules, assign percentages with reasoning
-7. Summary - Brief conclusion
-
-KEY REMINDERS:
-- Driver observations: Quote exactly, then state if it's a BLAME against the other driver
-- Only state facts visible in the document
-- Write "Not legible" if unclear
-- Be concise and accurate"""
-    
-    return prompt
-
-
-def build_test_prompt(ocr_texts):
-    """
-    Prompt for the NEW test image.
-    Includes strong constraints to prevent bleeding from the example.
-    """
-    ocr_content = "\n".join(ocr_texts)
-    
-    prompt = f"""Analyze this NEW French Constat Amiable.
-
-CRITICAL INSTRUCTION:
-This is a COMPLETELY DIFFERENT accident case from the previous example.
-- IGNORE all names, dates, and details from the previous example.
-- Use ONLY the information visible in the NEW image and the NEW OCR text below.
-- Do NOT hallucinate information from the previous turn.
-
-NEW OCR TEXT:
-{ocr_content}
-
-Provide the analysis in the same 7-section format as the example, but using ONLY the data from this new accident case."""
-    
-    return prompt
-
-
-def load_expected_answer(path):
-    """Load the expected answer from text file"""
-    with open(path, 'r', encoding='utf-8') as f:
-        return f.read()
-
-
 import gc
+
+def build_zero_shot_prompt(ocr_texts):
+    """
+    Comprehensive zero-shot prompt with all instructions and format guidance.
+    No example image needed - all guidance is textual.
+    """
+    ocr_content = "\n".join(ocr_texts)
+    
+    prompt = f"""You are analyzing a French Constat Amiable d'Accident Automobile (official accident report form).
+
+OCR EXTRACTED TEXT:
+{ocr_content}
+
+YOUR TASK:
+Provide a complete structured analysis in EXACTLY this format:
+
+---
+CONSTAT AMIABLE ANALYSIS
+
+1. ACCIDENT DETAILS
+Date: [extract from Section 1]
+Time: [extract from Section 1]
+Location: [extract from Section 2]
+Injuries: [Yes/No from Section 3]
+Other damage: [Yes/No from Section 4]
+Witness: [extract from Section 5 if present]
+
+2. VEHICLE A (Left side of form)
+Driver: [Name from Section 9], DOB: [Date of birth]
+Address: [Full address], Phone: [Phone number]
+Vehicle: [Make/Model from Section 7], Reg: [Registration number]
+Insurance: [Company from Section 8], Contract: [Number], Valid: [Dates]
+License: Category [from Section 9], Number: [if visible], Valid until: [date]
+Damage: [describe from Section 11]
+Observation: "[Quote EXACT text from Section 14]" - [State if this BLAMES the other driver or is just self-description]
+
+3. VEHICLE B (Right side of form)
+[Same structure as Vehicle A but for right side]
+
+4. CIRCUMSTANCES (Section 12)
+Vehicle A: [List ONLY the box numbers that have visible checkmarks/crosses]
+Vehicle B: [List ONLY the box numbers that have visible checkmarks/crosses]
+
+5. RECONSTRUCTION
+[Provide step-by-step reconstruction based ONLY on:
+- The checked boxes in Section 12
+- The damage descriptions in Section 11
+- The sketch in Section 13 if legible]
+
+6. FAULT ANALYSIS
+[Apply French traffic liability rules (Barème de Responsabilité):
+- Identify the primary maneuver from checked boxes
+- Assign liability percentages (e.g., 75-100% vs 0-25%)
+- Justify with specific box numbers and French law principles]
+
+7. SUMMARY
+[1-2 sentences: Date, location, what happened, fault conclusion]
+---
+
+CRITICAL RULES:
+1. Use ONLY information visible in THIS image and the OCR text above
+2. Write "Not legible" or "Not specified" if information is unclear
+3. For Section 12 (circumstances), carefully examine the IMAGE - only list boxes with actual checkmarks
+4. Quote driver observations verbatim, then analyze if they blame the other party
+5. Be concise and factual
+6. DO NOT invent or assume information not present in the document
+
+Now analyze the Constat image provided."""
+    
+    return prompt
+
 
 def analyze_constat_few_shot(test_image_path, ocr=None, model=None, tokenizer=None):
     """
-    Analyze a Constat image using few-shot learning.
-    Uses one example (example_constat.png + expected_answer_constat.txt) to guide the model.
+    Analyze a Constat image using zero-shot learning with detailed prompt.
     """
     # ================== STEP 1: OCR PROCESSING (PaddleOCR) ==================
-    # We run OCR first, then clear it from memory to save VRAM for MiniCPM
     
     if ocr is None:
         ocr = load_paddleocr()
     
-    # Check files exist
-    if not EXAMPLE_IMAGE_PATH.exists():
-        raise FileNotFoundError(f"Example image not found: {EXAMPLE_IMAGE_PATH}\n"
-                                f"Please copy your example Constat image to: {EXAMPLE_IMAGE_PATH}")
-    
-    if not EXPECTED_ANSWER_PATH.exists():
-        raise FileNotFoundError(f"Expected answer not found: {EXPECTED_ANSWER_PATH}")
-
-    print("\n📚 Processing example image OCR...")
-    example_image = Image.open(EXAMPLE_IMAGE_PATH).convert('RGB')
-    example_ocr_texts = extract_ocr_text(ocr, EXAMPLE_IMAGE_PATH)
-    example_prompt = build_training_prompt(example_ocr_texts)
-    expected_answer = load_expected_answer(EXPECTED_ANSWER_PATH)
-    
-    print("\n🎯 Processing test image OCR...")
+    print("\n🎯 Processing image OCR...")
     test_image = Image.open(test_image_path).convert('RGB')
     test_ocr_texts = extract_ocr_text(ocr, test_image_path)
-    test_prompt = build_test_prompt(test_ocr_texts)
+    test_prompt = build_zero_shot_prompt(test_ocr_texts)
     
     # FREE GPU MEMORY: Delete OCR and clear cache
     print("🧹 Clearing OCR from memory...")
@@ -211,19 +207,16 @@ def analyze_constat_few_shot(test_image_path, ocr=None, model=None, tokenizer=No
     if model is None or tokenizer is None:
         model, tokenizer = load_minicpm()
     
-    print("\n🤖 Running few-shot inference...")
+    print("\n🤖 Running zero-shot inference...")
     
+    # ZERO-SHOT: Only the test image, no example
     msgs = [
-        # Example (one-shot)
-        {'role': 'user', 'content': [example_image, example_prompt]},
-        {'role': 'assistant', 'content': [expected_answer]},
-        # Test
         {'role': 'user', 'content': [test_image, test_prompt]}
     ]
     
     try:
         answer = model.chat(
-            image=None,  # Images are in msgs
+            image=None,  # Image is in msgs
             msgs=msgs,
             tokenizer=tokenizer
         )
@@ -233,7 +226,6 @@ def analyze_constat_few_shot(test_image_path, ocr=None, model=None, tokenizer=No
     
     return {
         "test_image": str(test_image_path),
-        "example_ocr_texts": example_ocr_texts,
         "test_ocr_texts": test_ocr_texts,
         "analysis": answer
     }
@@ -289,23 +281,14 @@ def main():
         f.write(result['analysis'])
     print(f"\n💾 Analyse sauvegardée: {output_path}")
     
-    # Save Example OCR output
-    example_ocr_path = output_dir / "example_constat_ocr.txt"
-    with open(example_ocr_path, 'w', encoding='utf-8') as f:
-        f.write("EXAMPLE OCR EXTRACTED TEXT\n")
-        f.write("=" * 70 + "\n\n")
-        for i, text in enumerate(result['example_ocr_texts'], 1):
-            f.write(f"{i}. {text}\n")
-    print(f"💾 Example OCR sauvegardé: {example_ocr_path}")
-    
-    # Save Test OCR output
-    test_ocr_path = output_dir / (Path(test_image_path).stem + "_ocr_output.txt")
-    with open(test_ocr_path, 'w', encoding='utf-8') as f:
-        f.write("TEST OCR EXTRACTED TEXT\n")
+    # Save OCR output
+    ocr_output_path = output_dir / (Path(test_image_path).stem + "_ocr_output.txt")
+    with open(ocr_output_path, 'w', encoding='utf-8') as f:
+        f.write("OCR EXTRACTED TEXT\n")
         f.write("=" * 70 + "\n\n")
         for i, text in enumerate(result['test_ocr_texts'], 1):
             f.write(f"{i}. {text}\n")
-    print(f"💾 Test OCR sauvegardé: {test_ocr_path}")
+    print(f"💾 OCR sauvegardé: {ocr_output_path}")
     
     print("✅ Terminé!")
 
