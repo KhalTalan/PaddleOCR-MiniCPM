@@ -124,47 +124,23 @@ def generate_response(model, processor, messages):
 
 def build_checkbox_prompt():
     """Prompt for Step 1: Extract checkboxes from crop"""
-    return """Analyze this Section 12 (Circonstances) checkbox image from a French Constat Amiable.
+    return """Analyze Section 12 checkboxes. For each of the 17 boxes per vehicle, mark ☐ EMPTY or ☑ CHECKED with confidence %.
 
-For VEHICLE A (Left column) - List all 17 boxes:
-Box 1 (stationnement): ☐ EMPTY or ☑ CHECKED (confidence %)
-Box 2 (quittait stationnement): ☐ EMPTY or ☑ CHECKED (confidence %)
-Box 3 (prenait stationnement): ☐ EMPTY or ☑ CHECKED (confidence %)
-Box 4 (sortait parking): ☐ EMPTY or ☑ CHECKED (confidence %)
-Box 5 (s'engageait parking): ☐ EMPTY or ☑ CHECKED (confidence %)
-Box 6 (place giratoire): ☐ EMPTY or ☑ CHECKED (confidence %)
-Box 7 (roulait giratoire): ☐ EMPTY or ☑ CHECKED (confidence %)
-Box 8 (heurtait l'arrière): ☐ EMPTY or ☑ CHECKED (confidence %)
-Box 9 (file différente): ☐ EMPTY or ☑ CHECKED (confidence %)
-Box 10 (changeait file): ☐ EMPTY or ☑ CHECKED (confidence %)
-Box 11 (doublait): ☐ EMPTY or ☑ CHECKED (confidence %)
-Box 12 (virait droite): ☐ EMPTY or ☑ CHECKED (confidence %)
-Box 13 (virait gauche): ☐ EMPTY or ☑ CHECKED (confidence %)
-Box 14 (reculait): ☐ EMPTY or ☑ CHECKED (confidence %)
-Box 15 (empiétait): ☐ EMPTY or ☑ CHECKED (confidence %)
-Box 16 (venait droite): ☐ EMPTY or ☑ CHECKED (confidence %)
-Box 17 (signal priorité): ☐ EMPTY or ☑ CHECKED (confidence %)
+VEHICLE A (Left):
+Box 1-17: [☐/☑ + %]
 
-For VEHICLE B (Right column) - List all 17 boxes:
-Box 1 (stationnement): ☐ EMPTY or ☑ CHECKED (confidence %)
-Box 2 (quittait stationnement): ☐ EMPTY or ☑ CHECKED (confidence %)
-Box 3 (prenait stationnement): ☐ EMPTY or ☑ CHECKED (confidence %)
-Box 4 (sortait parking): ☐ EMPTY or ☑ CHECKED (confidence %)
-Box 5 (s'engageait parking): ☐ EMPTY or ☑ CHECKED (confidence %)
-Box 6 (place giratoire): ☐ EMPTY or ☑ CHECKED (confidence %)
-Box 7 (roulait giratoire): ☐ EMPTY or ☑ CHECKED (confidence %)
-Box 8 (heurtait l'arrière): ☐ EMPTY or ☑ CHECKED (confidence %)
-Box 9 (file différente): ☐ EMPTY or ☑ CHECKED (confidence %)
-Box 10 (changeait file): ☐ EMPTY or ☑ CHECKED (confidence %)
-Box 11 (doublait): ☐ EMPTY or ☑ CHECKED (confidence %)
-Box 12 (virait droite): ☐ EMPTY or ☑ CHECKED (confidence %)
-Box 13 (virait gauche): ☐ EMPTY or ☑ CHECKED (confidence %)
-Box 14 (reculait): ☐ EMPTY or ☑ CHECKED (confidence %)
-Box 15 (empiétait): ☐ EMPTY or ☑ CHECKED (confidence %)
-Box 16 (venait droite): ☐ EMPTY or ☑ CHECKED (confidence %)
-Box 17 (signal priorité): ☐ EMPTY or ☑ CHECKED (confidence %)
+VEHICLE B (Right):
+Box 1-17: [☐/☑ + %]
 
-Summary: Vehicle A checked boxes: [list], Vehicle B checked boxes: [list]"""
+MANUAL COUNTS (printed at bottom):
+Vehicle A count: [number]
+Vehicle B count: [number]
+
+VERIFICATION: Does your detection match the printed counts? If not, recheck uncertain boxes.
+
+SUMMARY:
+Vehicle A: [e.g., "Box n (...)"]
+Vehicle B: [e.g., "Box m (...)"]"""
 
 
 def extract_checkboxes(model, processor, crop_image_path):

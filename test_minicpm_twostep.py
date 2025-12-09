@@ -81,7 +81,6 @@ def build_checkbox_prompt():
 
 For VEHICLE A (Left column) - List all 17 boxes:
 Box 1 (stationnement): ☐ EMPTY or ☑ CHECKED (confidence %)
-Box 2 (quittait stationnement): ☐ EMPTY or ☑ CHECKED (confidence %)
 ...
 Box 17 (signal priorité): ☐ EMPTY or ☑ CHECKED (confidence %)
 
