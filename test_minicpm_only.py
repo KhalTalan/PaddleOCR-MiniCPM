@@ -140,8 +140,17 @@ def test_minicpm_2shot(test_image_path):
         # Example 2
         {'role': 'user', 'content': [example2_img, prompt]},
         {'role': 'assistant', 'content': [example2_ans]},
-        # Test
-        {'role': 'user', 'content': [test_img, "Analyze this NEW Constat image using the same format:"]}
+        # Test - Very explicit about new image
+        {'role': 'user', 'content': [test_img, """⚠️ NEW IMAGE - COMPLETELY DIFFERENT ACCIDENT ⚠️
+
+IGNORE all names, dates, addresses, and details from previous examples.
+Extract information ONLY from THIS new image.
+
+Provide the SAME 7-section format, including:
+- Section 4: List ALL 17 boxes for Vehicle A (☐/☑ with %)
+- Section 4: List ALL 17 boxes for Vehicle B (☐/☑ with %)
+
+NOW ANALYZE THIS NEW CONSTAT:"""]}
     ]
     
     try:
