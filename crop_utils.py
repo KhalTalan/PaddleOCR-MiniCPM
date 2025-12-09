@@ -62,6 +62,7 @@ def extract_section_12_crop(image_path, output_path=None):
     # 4. Find Anchor Blocks
     header_bbox = None
     footer_bbox = None
+    is_header_table = False
     content_bboxes = []
     
     # Load image for cropping
@@ -79,14 +80,13 @@ def extract_section_12_crop(image_path, output_path=None):
         # print(f"      - Block: {text[:100]}...") # Debug print
         
         # Header detection
-        # Check standard text and HTML table content
-        # "Vehicle A" often appears in the table headers for the checkboxes
         is_table = "<table>" in text
         match_keyword = ("circonstances" in text) or (is_table and "vehicle a" in text)
         
         if match_keyword:
             # If it's a table, it likely contains the whole section or most of it
             header_bbox = bbox
+            is_header_table = is_table
             print(f"   📍 Found Candidate Block: {bbox} (Table={is_table})")
             
             if is_table:
@@ -99,10 +99,8 @@ def extract_section_12_crop(image_path, output_path=None):
                      
         elif "circonstances" in text and header_bbox is None:
             header_bbox = bbox
-            # print(f"   📍 Found Header (fuzzy): {bbox}")
             
         # Footer detection
-        # Look for end of section signals
         if "nombre de cases" in text or "croquis" in text or "signature" in text or "mes observations" in text:
             if header_bbox and bbox[1] > header_bbox[1]:
                 if footer_bbox is None or bbox[1] < footer_bbox[1]:
@@ -115,7 +113,6 @@ def extract_section_12_crop(image_path, output_path=None):
                  content_bboxes.append(bbox)
 
     # 5. Calculate Crop Coordinates
-    # Heuristics based on standard Constat form layout
     
     if header_bbox:
          # Vertical Extent
@@ -124,36 +121,39 @@ def extract_section_12_crop(image_path, output_path=None):
          if footer_bbox:
              crop_y2 = min(h, footer_bbox[3] + 10)
          else:
-             crop_y2 = min(h, crop_y1 + 600) # Heuristic height
+             crop_y2 = min(h, crop_y1 + 600) 
              
-         # Horizontal Extent - Tricky part
-         # The "12. Circonstances" title is usually centered above the list.
-         # The list items (labels) are centered.
-         # Checkboxes are Left and Right of labels.
-         
-         # Detect width of the text content column
+         # Horizontal Extent
          valid_x = [b[0] for b in content_bboxes] + [b[2] for b in content_bboxes]
          
          if valid_x:
              min_content_x = min(valid_x)
              max_content_x = max(valid_x)
-             # Expand generously to capture checkboxes
-             # Checkboxes ~40-50px wide, plus margin
-             expand_x = 100 
+             print(f"   📏 Content Width: {min_content_x}-{max_content_x}")
              
-             crop_x1 = max(0, min_content_x - expand_x)
-             crop_x2 = min(w, max_content_x + expand_x)
+             if is_header_table:
+                 # Table bbox usually captures the lines.
+                 # Add small margin just in case.
+                 crop_x1 = max(0, min_content_x - 15)
+                 crop_x2 = min(w, max_content_x + 15)
+             else:
+                 # If detected via text labels, we need significant padding to find checkboxes.
+                 expand_x = 100 
+                 crop_x1 = max(0, min_content_x - expand_x)
+                 crop_x2 = min(w, max_content_x + expand_x)
              
-             print(f"   📏 Content Width: {min_content_x}-{max_content_x} -> Crop: {crop_x1}-{crop_x2}")
+             print(f"   ✂️ Final Crop: {crop_x1}-{crop_x2}")
          else:
              # Fallback based on Header width
-             # Assume header ~30% of form width or ~150px
-             # Expand 150px on each side
-             crop_x1 = max(0, header_bbox[0] - 150)
-             crop_x2 = min(w, header_bbox[2] + 150)
+             # Check if header is table
+             if is_header_table:
+                 crop_x1 = max(0, header_bbox[0] - 15)
+                 crop_x2 = min(w, header_bbox[2] + 15)
+             else:
+                 crop_x1 = max(0, header_bbox[0] - 150)
+                 crop_x2 = min(w, header_bbox[2] + 150)
     else:
          print("⚠️ Header not found, using percentiles")
-         # Center crop fallback
          crop_x1 = int(w * 0.1)
          crop_x2 = int(w * 0.9)
          crop_y1 = int(h * 0.25)
