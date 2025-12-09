@@ -1,0 +1,79 @@
+CONSTAT AMIABLE ANALYSIS
+
+1. ACCIDENT DETAILS
+Date: 28/10/2023, Time: 14h00
+Location: Rue de la Libération, Aix-en-Provence, France
+Injuries: No | Other damage: Yes (see insurance certificate)
+Witnesses: None indicated
+
+2. VEHICLE A (Left): Driver, Address, Vehicle, Insurance, Damage, Observation
+
+Driver: RÉGLET Andy, DOB: 13/07/2000
+Address: 33698 Fos-sur-Cèze, France
+Vehicle: Peugeot 208, Reg: 05-01-2023
+Insurance: SOCIAL ASSURANCE #09232447
+License: 06 20 18 63 91, Cat B, valid until 06/20/2028
+Damage: Rear bumper damaged
+Observation: "N'aurait pas d'indicateur" - BLAMES Vehicle B for no indicator light
+
+3. VEHICLE B (Right): Same as Vehicle A
+
+4. CIRCUMSTANCES (Section 12) - CHECKBOX VERIFICATION
+
+Vehicle A (Left Column) - Inspecting boxes 1-17:
+Box 1 (stationnement): ☐ EMPTY (95%)
+Box 2 (quittait stationnement): ☐ EMPTY (95%)
+Box 3 (prenait stationnement): ☐ EMPTY (95%)
+Box 4 (sortait parking): ☐ EMPTY (95%)
+Box 5 (s'engageait parking): ☐ EMPTY (95%)
+Box 6 (place giratoire): ☐ EMPTY (95%)
+Box 7 (roulait giratoire): ☐ EMPTY (95%)
+Box 8 (heurtait l'arrière): ☐ EMPTY (95%)
+Box 9 (file différente): ☐ EMPTY (95%)
+Box 10 (changeait file): ☐ EMPTY (95%)
+Box 11 (doublait): ☐ EMPTY (95%)
+Box 12 (virait droite): ☐ EMPTY (95%)
+Box 13 (virait gauche): ☐ EMPTY (95%)
+Box 14 (reculait): ☐ EMPTY (95%)
+Box 15 (empiétait): ☐ EMPTY (95%)
+Box 16 (venait droite): ☐ EMPTY (95%)
+Box 17 (signal priorité): ☐ EMPTY (95%)
+
+Vehicle B (Right Column) - Inspecting boxes 1-17:
+Box 1 (stationnement): ☐ EMPTY (95%)
+Box 2 (quittait stationnement): ☐ EMPTY (95%)
+Box 3 (prenait stationnement): ☐ EMPTY (95%)
+Box 4 (sortait parking): ☐ EMPTY (95%)
+Box 5 (s'engageait parking): ☐ EMPTY (95%)
+Box 6 (place giratoire): ☐ EMPTY (95%)
+Box 7 (roulait giratoire): ☐ EMPTY (95%)
+Box 8 (heurtait l'arrière): ☐ EMPTY (95%)
+Box 9 (file différente): ☐ EMPTY (95%)
+Box 10 (changeait file): ☐ EMPTY (95%)
+Box 11 (doublait): ☐ EMPTY (95%)
+Box 12 (virait droite): ☐ EMPTY (95%)
+Box 13 (virait gauche): ☐ EMPTY (95%)
+Box 14 (reculait): ☐ EMPTY (95%)
+Box 15 (empiétait): ☐ EMPTY (95%)
+Box 16 (venait droite): ☐ EMPTY (95%)
+Box 17 (signal priorité): ☐ EMPTY (95%)
+
+VERIFIED CHECKED BOXES:
+Vehicle A: Box 8 only (95%)
+Vehicle B: Box 16 only (95%)
+
+5. RECONSTRUCTION
+Step 1: Vehicle B was turning right at a roundabout (Box 8 checked)
+Step 2: Vehicle A approached from the opposite direction
+Step 3: Contact occurred between the rear of Vehicle B and the front of Vehicle A.
+Evidence: Rear bumper damage on Vehicle A, side scratch on Vehicle B.
+
+6. FAULT ANALYSIS
+Based on observations and checked boxes:
+- Vehicle A was stationary when Vehicle B turned right (Box 8 checked).
+- Vehicle B likely had the right of way but did not see Vehicle A (Box 16 checked).
+
+Conclusion: Vehicle B is primarily at fault due to turning without ensuring clear path and lack of visible signal.
+
+7. SUMMARY
+On 28/10/2023 at 14h00, a Peugeot 208 (RÉGLET Andy) collided with a Renault Megane (Hamed) at a roundabout in Aix-en-Provence. Both vehicles sustained minor damages. No injuries were reported. Vehicle B is primarily liable due to failure to check signals and turn safely.
