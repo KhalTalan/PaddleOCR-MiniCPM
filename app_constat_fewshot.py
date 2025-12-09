@@ -43,29 +43,23 @@ if HF_TOKEN:
 # ================== LOAD MODELS ==================
 
 def load_paddleocr_vl():
-    """Load PaddleOCR-VL model for better document parsing"""
+    """Load PaddleOCR-VL using official API"""
     print("📦 Loading PaddleOCR-VL...")
-    from transformers import AutoModelForCausalLM, AutoProcessor
-    
-    model_path = "PaddlePaddle/PaddleOCR-VL"
-    
-    if DEVICE == "cuda":
-        ocr_model = AutoModelForCausalLM.from_pretrained(
-            model_path,
-            trust_remote_code=True,
-            torch_dtype=torch.bfloat16
-        ).to(DEVICE).eval()
-    else:
-        ocr_model = AutoModelForCausalLM.from_pretrained(
-            model_path,
-            trust_remote_code=True,
-            torch_dtype=torch.float32
-        ).eval()
-    
-    processor = AutoProcessor.from_pretrained(model_path, trust_remote_code=True)
-    
-    print("✅ PaddleOCR-VL loaded")
-    return ocr_model, processor
+    try:
+        from paddleocr import PaddleOCRVL
+        pipeline = PaddleOCRVL()
+        print("✅ PaddleOCR-VL loaded")
+        return pipeline
+    except ImportError:
+        print("⚠️  PaddleOCR-VL not available, falling back to basic PaddleOCR")
+        from paddleocr import PaddleOCR
+        ocr = PaddleOCR(
+            use_angle_cls=True,
+            lang='fr',
+            use_gpu=(DEVICE == "cuda"),
+            show_log=False
+        )
+        return ocr
 
 
 def load_minicpm():
@@ -105,38 +99,31 @@ def load_minicpm():
     return model, tokenizer
 
 
-def extract_ocr_text_vl(ocr_model, processor, image_path):
-    """Extract text using PaddleOCR-VL"""
-    print(f"🔍 OCR-VL: {Path(image_path).name}")
+def extract_ocr_text_vl(pipeline, image_path):
+    """Extract text using PaddleOCR-VL or basic PaddleOCR"""
+    print(f"🔍 OCR: {Path(image_path).name}")
     
-    image = Image.open(image_path).convert('RGB')
-    
-    # Use OCR task for PaddleOCR-VL
-    messages = [
-        {
-            "role": "user",
-            "content": [
-                {"type": "image", "image": image},
-                {"type": "text", "text": "OCR:"}
-            ]
-        }
-    ]
-    
-    inputs = processor.apply_chat_template(
-        messages,
-        tokenize=True,
-        add_generation_prompt=True,
-        return_dict=True,
-        return_tensors="pt"
-    ).to(DEVICE)
-    
-    with torch.inference_mode():
-        outputs = ocr_model.generate(**inputs, max_new_tokens=2048, do_sample=False)
-    
-    ocr_result = processor.batch_decode(outputs, skip_special_tokens=True)[0]
-    
-    # Split into lines for compatibility with existing code
-    texts = [line.strip() for line in ocr_result.split('\n') if line.strip()]
+    # Check if it's PaddleOCRVL or basic PaddleOCR
+    if hasattr(pipeline, 'predict'):
+        # PaddleOCRVL
+        output = pipeline.predict(str(image_path))
+        texts = []
+        for res in output:
+            # Extract text from OCR results
+            if hasattr(res, 'ocr_text'):
+                texts.extend([line.strip() for line in res.ocr_text.split('\n') if line.strip()])
+            elif hasattr(res, 'text'):
+                texts.append(res.text.strip())
+    else:
+        # Basic PaddleOCR fallback
+        result = pipeline.ocr(str(image_path), cls=True)
+        texts = []
+        if result and result[0]:
+            for line in result[0]:
+                if len(line) >= 2 and line[1]:
+                    text = line[1][0] if isinstance(line[1], (list, tuple)) else str(line[1])
+                    if text:
+                        texts.append(text.strip())
     
     print(f"   Found {len(texts)} text blocks")
     return texts
@@ -201,7 +188,7 @@ def load_expected_answer(path):
         return f.read()
 
 
-def analyze_constat_few_shot(test_image_path, ocr_model=None, processor=None, model=None, tokenizer=None):
+def analyze_constat_few_shot(test_image_path, pipeline=None, model=None, tokenizer=None):
     """
     Analyze a Constat image using few-shot learning.
     Uses one example (example_constat.png + expected_answer_constat.txt) to guide the model.
@@ -210,8 +197,8 @@ def analyze_constat_few_shot(test_image_path, ocr_model=None, processor=None, mo
     # ================== STEP 1: OCR PROCESSING (PaddleOCR-VL) ==================
     # We run OCR first, then clear it from memory to save VRAM for MiniCPM
     
-    if ocr_model is None or processor is None:
-        ocr_model, processor = load_paddleocr_vl()
+    if pipeline is None:
+        pipeline = load_paddleocr_vl()
     
     # Check files exist
     if not EXAMPLE_IMAGE_PATH.exists():
@@ -223,18 +210,18 @@ def analyze_constat_few_shot(test_image_path, ocr_model=None, processor=None, mo
 
     print("\n📚 Processing example image OCR...")
     example_image = Image.open(EXAMPLE_IMAGE_PATH).convert('RGB')
-    example_ocr_texts = extract_ocr_text_vl(ocr_model, processor, EXAMPLE_IMAGE_PATH)
+    example_ocr_texts = extract_ocr_text_vl(pipeline, EXAMPLE_IMAGE_PATH)
     example_prompt = build_training_prompt(example_ocr_texts)
     expected_answer = load_expected_answer(EXPECTED_ANSWER_PATH)
     
     print("\n🎯 Processing test image OCR...")
     test_image = Image.open(test_image_path).convert('RGB')
-    test_ocr_texts = extract_ocr_text_vl(ocr_model, processor, test_image_path)
+    test_ocr_texts = extract_ocr_text_vl(pipeline, test_image_path)
     test_prompt = build_test_prompt(test_ocr_texts)
     
     # FREE GPU MEMORY: Delete OCR-VL and clear cache
-    print("🧹 Clearing OCR-VL from memory...")
-    del ocr_model, processor
+    print("🧹 Clearing OCR from memory...")
+    del pipeline
     gc.collect()
     if torch.cuda.is_available():
         torch.cuda.empty_cache()
