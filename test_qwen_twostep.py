@@ -140,7 +140,7 @@ MANUAL COUNTS :
 Vehicle A count: [read number]
 Vehicle B count: [read number]
 
-VERIFICATION: Your detected count must match the printed count. If mismatch, recheck uncertain boxes.
+VERIFICATION: Your detected count must match the printed count. If mismatch, recheck uncertain boxes, the important part is stating each box what it represents and wether its checked or not.
 """
 
 
