@@ -76,6 +76,7 @@ def extract_section_12_crop(image_path, output_path=None):
     for block in blocks:
         bbox = block.get('block_bbox') # [x1, y1, x2, y2]
         text = block.get('block_content', '').lower()
+        print(f"      - Block: {text[:50]}...") # Debug print
         
         # Header detection
         if "circonstances" in text and "12" in text:
