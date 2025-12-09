@@ -33,7 +33,7 @@ def extract_section_12_crop(image_path, output_path=None):
 
     # 2. Run Layout Analysis
     try:
-        output = pipeline(str(image_path))
+        output = pipeline.predict(str(image_path))
     except Exception as e:
          print(f"❌ Error running pipeline: {e}")
          return None
