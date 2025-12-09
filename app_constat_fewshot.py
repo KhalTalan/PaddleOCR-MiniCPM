@@ -89,12 +89,12 @@ def load_minicpm():
 
 
 def extract_ocr_text_vl(pipeline, image_path, save_debug=True):
-    """Extract text using PaddleOCR-VL"""
+    """Extract text using PaddleOCR-VL and return markdown formatted text"""
     print(f"🔍 OCR-VL: {Path(image_path).name}")
     
     # Use PaddleOCR-VL pipeline
     output = pipeline.predict(str(image_path))
-    texts = []
+    markdown_content = ""
     
     # Save debug outputs (JSON and Markdown)
     if save_debug:
@@ -111,28 +111,15 @@ def extract_ocr_text_vl(pipeline, image_path, save_debug=True):
             res.save_to_json(save_path=str(image_output_dir / "paddleocr_vl.json"))
             res.save_to_markdown(save_path=str(image_output_dir / "paddleocr_vl.md"))
             print(f"   💾 Debug files saved in: output/{image_name}/")
-    
-    # Parse PaddleOCR-VL output
-    for result in output:
-        if hasattr(result, 'json'):
-            result_json = result.json
-            if callable(result_json):
-                result_json = result_json()
             
-            # Extract from PaddleOCR-VL structure
-            if isinstance(result_json, dict) and 'res' in result_json:
-                res = result_json['res']
-                
-                # Get parsing results list
-                if 'parsing_res_list' in res:
-                    for block in res['parsing_res_list']:
-                        # Extract text content from each block
-                        if 'block_content' in block and block['block_content']:
-                            content = block['block_content'].strip()
-                            if content:
-                                texts.append(content)
+            # Get markdown content
+            if hasattr(res, 'markdown'):
+                markdown_content = res.markdown
     
-    print(f"   Found {len(texts)} text blocks")
+    # Convert markdown to list of text blocks (split by double newlines to preserve structure)
+    texts = [line.strip() for line in markdown_content.split('\n') if line.strip()]
+    
+    print(f"   Found {len(texts)} text blocks (from markdown)")
     return texts
 
 

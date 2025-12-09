@@ -41,50 +41,44 @@ if HF_TOKEN:
 def load_paddleocr_vl():
     """Load PaddleOCR-VL using official API"""
     print("📦 Loading PaddleOCR-VL...")
-    try:
-        from paddleocr import PaddleOCRVL
-        pipeline = PaddleOCRVL()
-        print("✅ PaddleOCR-VL loaded")
-        return pipeline
-    except ImportError:
-        print("⚠️  PaddleOCR-VL not available, falling back to basic PaddleOCR")
-        from paddleocr import PaddleOCR
-        ocr = PaddleOCR(
-            use_angle_cls=True,
-            lang='fr',
-            use_gpu=(DEVICE == "cuda"),
-            show_log=False
-        )
-        return ocr
+    from paddleocr import PaddleOCRVL
+    pipeline = PaddleOCRVL()
+    print("✅ PaddleOCR-VL loaded")
+    return pipeline
 
 
-def extract_ocr_text_vl(pipeline, image_path):
-    """Extract text using PaddleOCR-VL or basic PaddleOCR"""
-    print(f"🔍 OCR: {Path(image_path).name}")
+def extract_ocr_text_vl(pipeline, image_path, save_debug=True):
+    """Extract text using PaddleOCR-VL and return markdown formatted text"""
+    print(f"🔍 OCR-VL: {Path(image_path).name}")
     
-    # Check if it's PaddleOCRVL or basic PaddleOCR
-    if hasattr(pipeline, 'predict'):
-        # PaddleOCRVL
-        output = pipeline.predict(str(image_path))
-        texts = []
+    # Use PaddleOCR-VL pipeline
+    output = pipeline.predict(str(image_path))
+    markdown_content = ""
+    
+    # Save debug outputs (JSON and Markdown)
+    if save_debug:
+        output_dir = Path(__file__).parent / "output"
+        output_dir.mkdir(exist_ok=True)
+        
         for res in output:
-            # Extract text from OCR results
-            if hasattr(res, 'ocr_text'):
-                texts.extend([line.strip() for line in res.ocr_text.split('\n') if line.strip()])
-            elif hasattr(res, 'text'):
-                texts.append(res.text.strip())
-    else:
-        # Basic PaddleOCR fallback
-        result = pipeline.ocr(str(image_path), cls=True)
-        texts = []
-        if result and result[0]:
-            for line in result[0]:
-                if len(line) >= 2 and line[1]:
-                    text = line[1][0] if isinstance(line[1], (list, tuple)) else str(line[1])
-                    if text:
-                        texts.append(text.strip())
+            # Create subdirectory for this image
+            image_name = Path(image_path).stem
+            image_output_dir = output_dir / image_name
+            image_output_dir.mkdir(exist_ok=True)
+            
+            # Save JSON and Markdown for debugging
+            res.save_to_json(save_path=str(image_output_dir / "paddleocr_vl.json"))
+            res.save_to_markdown(save_path=str(image_output_dir / "paddleocr_vl.md"))
+            print(f"   💾 Debug files saved in: output/{image_name}/")
+            
+            # Get markdown content
+            if hasattr(res, 'markdown'):
+                markdown_content = res.markdown
     
-    print(f"   Found {len(texts)} text blocks")
+    # Convert markdown to list of text blocks (split by newlines to preserve structure)
+    texts = [line.strip() for line in markdown_content.split('\n') if line.strip()]
+    
+    print(f"   Found {len(texts)} text blocks (from markdown)")
     return texts
 
 
@@ -285,24 +279,29 @@ def main():
     print("-" * 70)
     
     
-    # Save results to output directory
+    # Save results to organized output directory
     output_dir = Path(__file__).parent / "output"
     output_dir.mkdir(exist_ok=True)
     
+    # Create subdirectory for test image
+    test_image_name = Path(test_image_path).stem
+    test_output_dir = output_dir / test_image_name
+    test_output_dir.mkdir(exist_ok=True)
+    
     # Save analysis result
-    output_path = output_dir / (Path(test_image_path).stem + "_zeroshot_result.txt")
+    output_path = test_output_dir / "analysis_zeroshot.txt"
     with open(output_path, 'w', encoding='utf-8') as f:
         f.write(result['analysis'])
-    print(f"\n💾 Analyse sauvegardée: {output_path}")
+    print(f"\n💾 Analyse sauvegardée: output/{test_image_name}/analysis_zeroshot.txt")
     
     # Save OCR output
-    ocr_output_path = output_dir / (Path(test_image_path).stem + "_zeroshot_ocr.txt")
+    ocr_output_path = test_output_dir / "ocr_text.txt"
     with open(ocr_output_path, 'w', encoding='utf-8') as f:
-        f.write("OCR EXTRACTED TEXT\n")
+        f.write("OCR EXTRACTED TEXT (ZERO-SHOT)\n")
         f.write("=" * 70 + "\n\n")
         for i, text in enumerate(result['test_ocr_texts'], 1):
             f.write(f"{i}. {text}\n")
-    print(f"💾 OCR sauvegardé: {ocr_output_path}")
+    print(f"💾 OCR sauvegardé: output/{test_image_name}/ocr_text.txt")
     
     print("✅ Terminé!")
 
