@@ -163,6 +163,13 @@ Observation: "[Quote EXACT text from Section 14]" - [State if this BLAMES the ot
 Vehicle A: [List ONLY the box numbers that have visible checkmarks/crosses]
 Vehicle B: [List ONLY the box numbers that have visible checkmarks/crosses]
 
+⚠️ CRITICAL FOR SECTION 12:
+- VISUALLY INSPECT the image for checkmarks (✓, X, ☑)
+- The OCR lists all 17 box labels but most are EMPTY (☐)
+- ONLY report numbers for boxes with visible marks
+- If you see NO checked boxes, write "No boxes checked"
+- DO NOT guess or assume - verify visually
+
 5. RECONSTRUCTION
 [Provide step-by-step reconstruction based ONLY on:
 - The checked boxes in Section 12

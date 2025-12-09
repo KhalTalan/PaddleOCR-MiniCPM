@@ -126,49 +126,61 @@ def extract_ocr_text_vl(pipeline, image_path, save_debug=True):
 
 
 def build_training_prompt(ocr_texts):
-    """
-    Detailed prompt for the training example.
-    Teaches the model the format using the example data.
-    """
+    """Build detailed training prompt for the example with checkbox detection instructions"""
     ocr_content = "\n".join(ocr_texts)
     
-    prompt = f"""Analyze this French Constat Amiable (accident report) and provide a structured analysis.
+    prompt = f"""You are analyzing a French Constat Amiable d'Accident Automobile (official accident report).
 
-OCR TEXT:
+OCR DATA:
 {ocr_content}
 
-Follow this 7-section format:
-1. Accident details (date, time, location, injuries, witness)
-2. Vehicle A - Extract all info + damage + driver observation
-3. Vehicle B - Extract all info + damage + driver observation
-4. Circumstances - CRITICAL: Carefully check Section 12 image, only list CHECKED boxes
-5. Reconstruction - Step-by-step based on checked boxes + damage
-6. Fault analysis - Apply French liability rules, assign percentages with reasoning
-7. Summary - Brief conclusion
+CRITICAL INSTRUCTION FOR SECTION 12 (CIRCUMSTANCES):
+You MUST visually inspect the IMAGE to see which boxes are CHECKED (✓, X, ☑).
+- The OCR lists all 17 box labels, but most boxes are EMPTY (☐)
+- ONLY report box numbers that have a visible checkmark inside
+- If no boxes are checked, write "No boxes checked"
+- DO NOT assume or guess - use your vision to verify
 
-KEY REMINDERS:
-- Driver observations: Quote exactly, then state if it's a BLAME against the other driver
-- Only state facts visible in the document
-- Write "Not legible" if unclear
-- Be concise and accurate"""
+Analyze this image and extract information in this structured format:
+
+1. ACCIDENT DETAILS: Date, Time, Location, Injuries (yes/no), Other damage (yes/no), Witnesses
+
+2. VEHICLE A (Left): Driver name, Address, Vehicle (make/model), Insurance company and number, License details, Damage description, Driver's observation (quote exactly and note if it blames the other driver)
+
+3. VEHICLE B (Right): Same structure as Vehicle A
+
+4. CIRCUMSTANCES (Section 12): List ONLY the box numbers that are visually CHECKED for each vehicle
+
+5. RECONSTRUCTION: Based on checked boxes and damage, describe what happened
+
+6. FAULT ANALYSIS: Apply French liability rules based on checked circumstances
+
+7. SUMMARY: Brief 1-2 sentence summary
+
+Be concise and evidence-based. Quote driver observations verbatim."""
     
     return prompt
 
 
 def build_test_prompt(ocr_texts):
     """
-    Prompt for the NEW test image.
+    Prompt for the NEW test image with checkbox detection emphasis.
     Includes strong constraints to prevent bleeding from the example.
     """
     ocr_content = "\n".join(ocr_texts)
     
     prompt = f"""Analyze this NEW French Constat Amiable.
 
-⚠️ CRITICAL INSTRUCTION:
-This is a COMPLETELY DIFFERENT accident case from the previous example.
-- IGNORE all names, dates, and details from the previous example.
-- Use ONLY the information visible in the NEW image and the NEW OCR text below.
-- Do NOT hallucinate information from the previous turn.
+⚠️ CRITICAL INSTRUCTIONS:
+1. This is a COMPLETELY DIFFERENT accident case from the previous example
+2. IGNORE all names, dates, and details from the previous example
+3. Use ONLY the information visible in THIS NEW image and OCR text below
+
+SECTION 12 (CIRCUMSTANCES) - VISUAL VERIFICATION REQUIRED:
+- Look at THIS new image carefully
+- ONLY list box numbers with visible checkmarks (✓, X, ☑)
+- Most boxes will be EMPTY (☐) - do not list them
+- If unsure, state "No boxes checked" - do NOT guess
 
 NEW OCR TEXT:
 {ocr_content}
