@@ -53,7 +53,7 @@ def load_qwen():
         try:
             model = Qwen3VLForConditionalGeneration.from_pretrained(
                 model_name,
-                torch_dtype=torch.bfloat16,
+                dtype=torch.bfloat16,
                 attn_implementation="flash_attention_2",
                 device_map="auto",
                 cache_dir=str(CACHE_DIR),
@@ -63,7 +63,7 @@ def load_qwen():
         except:
             model = Qwen3VLForConditionalGeneration.from_pretrained(
                 model_name,
-                torch_dtype=torch.bfloat16,
+                dtype=torch.bfloat16,
                 device_map="auto",
                 cache_dir=str(CACHE_DIR),
                 token=HF_TOKEN
@@ -72,7 +72,7 @@ def load_qwen():
     else:
         model = Qwen3VLForConditionalGeneration.from_pretrained(
             model_name,
-            torch_dtype=torch.float32,
+            dtype=torch.float32,
             device_map="auto",
             cache_dir=str(CACHE_DIR),
             token=HF_TOKEN
