@@ -23,9 +23,9 @@ def extract_section_12_crop(image_path, output_path=None):
     # 1. Initialize PaddleOCR-VL (known to work)
     try:
         pipeline = PaddleOCRVL(
-            use_layout_detection=True, 
-            show_log=False,
-            device='cpu' # Use CPU for layout to save VRAM for VLM if needed, or GPU if available
+            use_layout_detection=True,
+            layout_unclip_ratio=1.05,
+            layout_nms=False
         )
     except Exception as e:
         print(f"❌ Error initializing PaddleOCRVL: {e}")
