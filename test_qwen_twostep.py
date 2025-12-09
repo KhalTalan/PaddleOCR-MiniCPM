@@ -124,18 +124,18 @@ def generate_response(model, processor, messages):
 
 def build_checkbox_prompt():
     """Prompt for Step 1: Extract checkboxes from crop"""
-    return """Analyze this Section 12 (Circonstances) checkbox image.
+    return """Analyze this Section (Circonstances) checkboxes.
 
 For VEHICLE A (Left column) - List all 17 boxes:
 Box 1 (stationnement): ☐ EMPTY or ☑ CHECKED (confidence %)
 ...
 Box 17 (signal priorité): ☐ EMPTY or ☑ CHECKED (confidence %)
-
+Same for vehicle B
 For VEHICLE B (Right column) - List all 17 boxes:
 Box 1 (stationnement): ☐ EMPTY or ☑ CHECKED (confidence %)
 ...
 Box 17 (signal priorité): ☐ EMPTY or ☑ CHECKED (confidence %)
-
+Then
 MANUAL COUNTS :
 Vehicle A count: [read number]
 Vehicle B count: [read number]
