@@ -102,11 +102,15 @@ def extract_ocr_text_vl(pipeline, image_path, save_debug=True):
         output_dir.mkdir(exist_ok=True)
         
         for res in output:
-            # Save JSON and Markdown for debugging
+            # Create subdirectory for this image
             image_name = Path(image_path).stem
-            res.save_to_json(save_path=str(output_dir / f"{image_name}_paddleocr_vl.json"))
-            res.save_to_markdown(save_path=str(output_dir / f"{image_name}_paddleocr_vl.md"))
-            print(f"   💾 Debug files saved: {image_name}_paddleocr_vl.json & .md")
+            image_output_dir = output_dir / image_name
+            image_output_dir.mkdir(exist_ok=True)
+            
+            # Save JSON and Markdown for debugging
+            res.save_to_json(save_path=str(image_output_dir / "paddleocr_vl.json"))
+            res.save_to_markdown(save_path=str(image_output_dir / "paddleocr_vl.md"))
+            print(f"   💾 Debug files saved in: output/{image_name}/")
     
     # Parse PaddleOCR-VL output
     for result in output:
@@ -302,33 +306,42 @@ def main():
     print("-" * 70)
     
     
-    # Save results to output directory
+    # Save results to organized output directory
     output_dir = Path(__file__).parent / "output"
     output_dir.mkdir(exist_ok=True)
     
+    # Create subdirectory for test image
+    test_image_name = Path(test_image_path).stem
+    test_output_dir = output_dir / test_image_name
+    test_output_dir.mkdir(exist_ok=True)
+    
+    # Create subdirectory for example
+    example_output_dir = output_dir / "example_constat"
+    example_output_dir.mkdir(exist_ok=True)
+    
     # Save analysis result
-    output_path = output_dir / (Path(test_image_path).stem + "_constat_result.txt")
+    output_path = test_output_dir / "analysis.txt"
     with open(output_path, 'w', encoding='utf-8') as f:
         f.write(result['analysis'])
-    print(f"\n💾 Analyse sauvegardée: {output_path}")
+    print(f"\n💾 Analyse sauvegardée: output/{test_image_name}/analysis.txt")
     
     # Save Example OCR output
-    example_ocr_path = output_dir / "example_constat_ocr.txt"
+    example_ocr_path = example_output_dir / "ocr_text.txt"
     with open(example_ocr_path, 'w', encoding='utf-8') as f:
         f.write("EXAMPLE OCR EXTRACTED TEXT\n")
         f.write("=" * 70 + "\n\n")
         for i, text in enumerate(result['example_ocr_texts'], 1):
             f.write(f"{i}. {text}\n")
-    print(f"💾 Example OCR sauvegardé: {example_ocr_path}")
+    print(f"💾 Example OCR sauvegardé: output/example_constat/ocr_text.txt")
     
-    # Save OCR output
-    ocr_output_path = output_dir / (Path(test_image_path).stem + "_ocr_output.txt")
+    # Save Test OCR output
+    ocr_output_path = test_output_dir / "ocr_text.txt"
     with open(ocr_output_path, 'w', encoding='utf-8') as f:
         f.write("OCR EXTRACTED TEXT\n")
         f.write("=" * 70 + "\n\n")
         for i, text in enumerate(result['test_ocr_texts'], 1):
             f.write(f"{i}. {text}\n")
-    print(f"💾 OCR sauvegardé: {ocr_output_path}")
+    print(f"💾 OCR sauvegardé: output/{test_image_name}/ocr_text.txt")
     
     print("✅ Terminé!")
 
