@@ -2,14 +2,26 @@ import cv2
 import numpy as np
 from pathlib import Path
 
-def extract_section_12_crop(image_path, output_path=None, debug=False):
+def extract_section_12_crop(image_path, output_path=None, output_dir=None, debug=False):
     """
     Extracts Section 12 using MANUAL COORDINATES.
     Since Constat forms are standardized, we use percentage-based cropping.
+    
+    Args:
+        image_path: Path to input image
+        output_path: Full path for output file (overrides output_dir)
+        output_dir: Directory to save crop (uses default filename)
+        debug: Save debug image showing crop region
     """
     image_path = Path(image_path)
+    
     if output_path is None:
-        output_path = image_path.parent / f"{image_path.stem}_crop_section12{image_path.suffix}"
+        if output_dir is not None:
+            output_dir = Path(output_dir)
+            output_dir.mkdir(parents=True, exist_ok=True)
+            output_path = output_dir / f"{image_path.stem}_crop_section12{image_path.suffix}"
+        else:
+            output_path = image_path.parent / f"{image_path.stem}_crop_section12{image_path.suffix}"
     
     print(f"✂️  Cropping Section 12 (Manual Method): {image_path.name}")
     

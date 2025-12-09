@@ -181,7 +181,7 @@ def generate_full_analysis(model, tokenizer, full_image_path, checkbox_data):
 
 # ================== MAIN ==================
 
-def test_two_step_analysis(test_image_path):
+def test_two_step_analysis(test_image_path, output_dir):
     """Two-step VLM analysis without OCR"""
     print("\n🧪 TWO-STEP VLM ANALYSIS (NO OCR)\n")
     print("=" * 70)
@@ -191,9 +191,9 @@ def test_two_step_analysis(test_image_path):
     # Load model once
     model, tokenizer = load_minicpm()
     
-    # Step 0: Crop Section 12
+    # Step 0: Crop Section 12 and save to output directory
     print("\n✂️  STEP 0: Cropping Section 12...")
-    crop_path = extract_section_12_crop(str(test_image_path))
+    crop_path = extract_section_12_crop(str(test_image_path), output_dir=output_dir)
     if not crop_path:
         print("❌ Cropping failed")
         return None
@@ -206,7 +206,8 @@ def test_two_step_analysis(test_image_path):
     
     return {
         'checkbox_data': checkbox_data,
-        'full_analysis': full_analysis
+        'full_analysis': full_analysis,
+        'crop_path': crop_path
     }
 
 
@@ -224,8 +225,13 @@ def main():
         print(f"❌ Test image not found: {test_image_path}")
         sys.exit(1)
     
+    # Create output directory structure: output_twostep/imagename/
+    test_name = Path(test_image_path).stem
+    output_dir = Path(__file__).parent / "output_twostep" / test_name
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
     # Run two-step analysis
-    results = test_two_step_analysis(test_image_path)
+    results = test_two_step_analysis(test_image_path, output_dir)
     
     if not results:
         sys.exit(1)
@@ -242,23 +248,17 @@ def main():
     print(results['full_analysis'])
     print("=" * 70)
     
-    # Save results
-    output_dir = Path(__file__).parent / "output_twostep"
-    output_dir.mkdir(exist_ok=True)
-    
-    test_name = Path(test_image_path).stem
-    
-    # Save checkpoint data
-    with open(output_dir / f"{test_name}_checkboxes.txt", 'w', encoding='utf-8') as f:
+    # Save results in the same directory as crop
+    with open(output_dir / "checkboxes.txt", 'w', encoding='utf-8') as f:
         f.write(results['checkbox_data'])
     
-    # Save full analysis
-    with open(output_dir / f"{test_name}_analysis.txt", 'w', encoding='utf-8') as f:
+    with open(output_dir / "analysis.txt", 'w', encoding='utf-8') as f:
         f.write(results['full_analysis'])
     
-    print(f"\n💾 Results saved:")
-    print(f"   - output_twostep/{test_name}_checkboxes.txt")
-    print(f"   - output_twostep/{test_name}_analysis.txt")
+    print(f"\n💾 All results saved in: output_twostep/{test_name}/")
+    print(f"   - {Path(results['crop_path']).name}")
+    print(f"   - checkboxes.txt")
+    print(f"   - analysis.txt")
     print("\n✅ Two-step analysis complete!")
 
 
