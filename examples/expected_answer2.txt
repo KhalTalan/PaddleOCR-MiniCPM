@@ -1,0 +1,86 @@
+CONSTAT AMIABLE ANALYSIS
+
+1. ACCIDENT DETAILS
+Date: 15/03/2024, Time: 14h30
+Location: Avenue des Champs-Élysées, Paris
+Injuries: No | Other damage: No
+Witness: None indicated
+
+2. VEHICLE A (Left/Vélo)
+Driver: MARTIN Pierre, DOB: 22/05/1985
+Address: 15 rue de la Paix, 75001 Paris, Phone: 06 12 34 56 78
+Vehicle: Vélo (bicycle)
+Insurance: Not applicable / No insurance number
+License: Not applicable
+Damage: Front wheel bent, handlebar scratched
+Observation: "La voiture ne m'a pas vu" - BLAMES Vehicle B for not seeing cyclist
+
+3. VEHICLE B (Right/Voiture)
+Driver: DUPONT Marie, DOB: 10/08/1990
+Address: 45 boulevard Haussmann, 75009 Paris, Phone: 06 98 76 54 32
+Vehicle: Renault Megane, Reg: AB-123-CD (France)
+Insurance: AXA #123456789, valid 01/01/24-01/01/25
+License: 12AB34567, Cat B, valid until 10/08/2035
+Damage: Right side mirror, minor scratch on door
+Observation: "Le vélo a surgi de nulle part" - BLAMES Vehicle A for sudden appearance
+
+4. CIRCUMSTANCES (Section 12) - CHECKBOX VERIFICATION
+
+Vehicle A (Left Column) - Inspecting boxes 1-17:
+Box 1 (stationnement): ☐ EMPTY (95%)
+Box 2 (quittait stationnement): ☐ EMPTY (95%)
+Box 3 (prenait stationnement): ☐ EMPTY (95%)
+Box 4 (sortait parking): ☐ EMPTY (95%)
+Box 5 (s'engageait parking): ☐ EMPTY (95%)
+Box 6 (place giratoire): ☐ EMPTY (95%)
+Box 7 (roulait giratoire): ☑ CHECKED (98%)
+Box 8 (heurtait l'arrière): ☐ EMPTY (95%)
+Box 9 (file différente): ☐ EMPTY (95%)
+Box 10 (changeait file): ☐ EMPTY (95%)
+Box 11 (doublait): ☐ EMPTY (95%)
+Box 12 (virait droite): ☐ EMPTY (95%)
+Box 13 (virait gauche): ☐ EMPTY (95%)
+Box 14 (reculait): ☐ EMPTY (95%)
+Box 15 (empiétait): ☐ EMPTY (95%)
+Box 16 (venait droite): ☐ EMPTY (95%)
+Box 17 (signal priorité): ☐ EMPTY (95%)
+
+Vehicle B (Right Column) - Inspecting boxes 1-17:
+Box 1 (stationnement): ☐ EMPTY (95%)
+Box 2 (quittait stationnement): ☐ EMPTY (95%)
+Box 3 (prenait stationnement): ☐ EMPTY (95%)
+Box 4 (sortait parking): ☐ EMPTY (95%)
+Box 5 (s'engageait parking): ☐ EMPTY (95%)
+Box 6 (place giratoire): ☐ EMPTY (95%)
+Box 7 (roulait giratoire): ☐ EMPTY (95%)
+Box 8 (heurtait l'arrière): ☐ EMPTY (95%)
+Box 9 (file différente): ☐ EMPTY (95%)
+Box 10 (changeait file): ☐ EMPTY (95%)
+Box 11 (doublait): ☐ EMPTY (95%)
+Box 12 (virait droite): ☐ EMPTY (95%)
+Box 13 (virait gauche): ☐ EMPTY (95%)
+Box 14 (reculait): ☐ EMPTY (95%)
+Box 15 (empiétait): ☐ EMPTY (95%)
+Box 16 (venait droite): ☑ CHECKED (98%)
+Box 17 (signal priorité): ☐ EMPTY (95%)
+
+VERIFIED CHECKED BOXES:
+Vehicle A: Box 7 only (98%)
+Vehicle B: Box 16 only (98%)
+
+5. RECONSTRUCTION
+Step 1: Vehicle B (car) was driving on the road
+Step 2: Vehicle A (bicycle) was traveling in adjacent lane or merging
+Step 3: Contact occurred between bicycle and car's right side
+Evidence: Damage patterns indicate side contact
+
+6. FAULT ANALYSIS
+No boxes checked makes fault determination difficult.
+Based on observations:
+- Driver A claims Driver B didn't see them
+- Driver B claims Driver A appeared suddenly
+
+Without checked boxes, shared liability likely (50/50) pending investigation.
+
+7. SUMMARY
+On 15/03/2024 at 14h30, a bicycle (MARTIN) and car (DUPONT) collided on Avenue des Champs-Élysées. No boxes were visibly checked in Section 12. Fault unclear, likely shared liability. No injuries.

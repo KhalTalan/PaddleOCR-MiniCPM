@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Test MiniCPM-V Few-Shot WITHOUT OCR
-Direct image-to-analysis to test VLM's visual checkbox detection capability
+Test MiniCPM-V 2-Shot WITHOUT OCR
+Uses two examples to test VLM's visual checkbox detection capability
 """
 
 import torch
@@ -25,9 +25,12 @@ os.environ['TRANSFORMERS_CACHE'] = str(CACHE_DIR / "transformers")
 
 HF_TOKEN = os.getenv('HF_TOKEN')
 
-# Paths
-EXAMPLE_IMAGE_PATH = Path(__file__).parent / "example_constat.png"
-EXPECTED_ANSWER_PATH = Path(__file__).parent / "expected_answer_constat.txt"
+# Paths - now using examples folder
+EXAMPLES_DIR = Path(__file__).parent / "examples"
+EXAMPLE1_IMAGE = EXAMPLES_DIR / "example_constat1.png"
+EXAMPLE1_ANSWER = EXAMPLES_DIR / "expected_answer1.txt"
+EXAMPLE2_IMAGE = EXAMPLES_DIR / "example_constat2.jpg"
+EXAMPLE2_ANSWER = EXAMPLES_DIR / "expected_answer2.txt"
 
 print(f"🚀 Device: {DEVICE}")
 if HF_TOKEN:
@@ -73,8 +76,8 @@ def load_minicpm():
 
 
 def build_prompt():
-    """Simple direct prompt without OCR"""
-    prompt = """Analyze this French accident report (Constat Amiable) image.
+    """Simple direct prompt"""
+    return """Analyze this French Constat Amiable image.
 
 Provide structured output in 7 sections:
 
@@ -94,49 +97,51 @@ Provide summary of checked boxes
 6. FAULT ANALYSIS: Who is at fault and why
 
 7. SUMMARY: Brief conclusion"""
-    
-    return prompt
 
 
-def load_expected_answer(path):
-    """Load expected answer"""
+def load_text(path):
+    """Load text file"""
     with open(path, 'r', encoding='utf-8') as f:
         return f.read()
 
 
-def test_minicpm_fewshot(test_image_path):
-    """Test MiniCPM-V with few-shot, NO OCR"""
-    print("\n🧪 Testing MiniCPM-V Few-Shot (NO OCR)\n")
+def test_minicpm_2shot(test_image_path):
+    """Test MiniCPM-V with 2-shot, NO OCR"""
+    print("\n🧪 Testing MiniCPM-V 2-Shot Learning (NO OCR)\n")
     
     # Check files
-    if not EXAMPLE_IMAGE_PATH.exists():
-        raise FileNotFoundError(f"Example image not found: {EXAMPLE_IMAGE_PATH}")
-    if not EXPECTED_ANSWER_PATH.exists():
-        raise FileNotFoundError(f"Expected answer not found: {EXPECTED_ANSWER_PATH}")
+    for f in [EXAMPLE1_IMAGE, EXAMPLE1_ANSWER, EXAMPLE2_IMAGE, EXAMPLE2_ANSWER]:
+        if not f.exists():
+            raise FileNotFoundError(f"Missing: {f}")
     
     # Load model
     model, tokenizer = load_minicpm()
     
     # Load images
     print("\n📸 Loading images...")
-    example_image = Image.open(EXAMPLE_IMAGE_PATH).convert('RGB')
-    test_image = Image.open(test_image_path).convert('RGB')
+    example1_img = Image.open(EXAMPLE1_IMAGE).convert('RGB')
+    example1_ans = load_text(EXAMPLE1_ANSWER)
+    example2_img = Image.open(EXAMPLE2_IMAGE).convert('RGB')
+    example2_ans = load_text(EXAMPLE2_ANSWER)
+    test_img = Image.open(test_image_path).convert('RGB')
     
-    # Load expected answer
-    expected_answer = load_expected_answer(EXPECTED_ANSWER_PATH)
-    
-    # Build prompt
     prompt = build_prompt()
     
-    print("\n🤖 Running few-shot inference (direct images, no OCR)...\n")
+    print("\n🤖 Running 2-shot inference...\n")
+    print(f"   Example 1: {EXAMPLE1_IMAGE.name}")
+    print(f"   Example 2: {EXAMPLE2_IMAGE.name}")
+    print(f"   Test: {Path(test_image_path).name}\n")
     
-    # Few-shot messages
+    # 2-shot messages
     msgs = [
-        # Example
-        {'role': 'user', 'content': [example_image, prompt]},
-        {'role': 'assistant', 'content': [expected_answer]},
+        # Example 1
+        {'role': 'user', 'content': [example1_img, prompt]},
+        {'role': 'assistant', 'content': [example1_ans]},
+        # Example 2
+        {'role': 'user', 'content': [example2_img, prompt]},
+        {'role': 'assistant', 'content': [example2_ans]},
         # Test
-        {'role': 'user', 'content': [test_image, "Analyze this NEW Constat image using the same format:"]}
+        {'role': 'user', 'content': [test_img, "Analyze this NEW Constat image using the same format:"]}
     ]
     
     try:
@@ -157,7 +162,7 @@ def main():
     if len(sys.argv) < 2:
         print("\n❌ Usage: python test_minicpm_only.py <test_image>")
         print("\nExample:")
-        print("   python test_minicpm_only.py images/Constat-Accident-velo.jpg")
+        print("   python test_minicpm_only.py images/4.jpg")
         sys.exit(1)
     
     test_image_path = sys.argv[1]
@@ -167,11 +172,11 @@ def main():
         sys.exit(1)
     
     # Run test
-    result = test_minicpm_fewshot(test_image_path)
+    result = test_minicpm_2shot(test_image_path)
     
     # Display
     print("=" * 70)
-    print("📊 MINICPM-V FEW-SHOT RESULT (NO OCR)")
+    print("📊 MINICPM-V 2-SHOT RESULT (NO OCR)")
     print("=" * 70)
     print(result)
     print("=" * 70)
@@ -192,3 +197,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
