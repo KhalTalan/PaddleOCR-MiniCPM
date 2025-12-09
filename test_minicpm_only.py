@@ -177,16 +177,16 @@ def main():
     print("=" * 70)
     
     # Save
-    output_dir = Path(__file__).parent / "output"
+    output_dir = Path(__file__).parent / "output_minicpm_test"
     output_dir.mkdir(exist_ok=True)
     
     test_name = Path(test_image_path).stem
-    output_path = output_dir / f"{test_name}_minicpm_only.txt"
+    output_path = output_dir / f"{test_name}_result.txt"
     
     with open(output_path, 'w', encoding='utf-8') as f:
         f.write(result)
     
-    print(f"\n💾 Result saved: {output_path}")
+    print(f"\n💾 Result saved: output_minicpm_test/{test_name}_result.txt")
     print("✅ Test complete!")
 
 
