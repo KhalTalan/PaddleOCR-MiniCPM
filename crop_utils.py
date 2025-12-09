@@ -133,9 +133,9 @@ def extract_section_12_crop(image_path, output_path=None):
              
              if is_header_table:
                  # Table bbox usually captures the lines.
-                 # Add small margin just in case.
-                 crop_x1 = max(0, min_content_x - 15)
-                 crop_x2 = min(w, max_content_x + 15)
+                 # Trust the exact boundaries
+                 crop_x1 = max(0, min_content_x)
+                 crop_x2 = min(w, max_content_x)
              else:
                  # If detected via text labels, we need significant padding to find checkboxes.
                  expand_x = 100 
