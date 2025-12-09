@@ -123,7 +123,22 @@ def load_paddleocr_vl():
     """Load PaddleOCR-VL using official API"""
     print("📦 Loading PaddleOCR-VL...")
     from paddleocr import PaddleOCRVL
-    pipeline = PaddleOCRVL()
+    pipeline = PaddleOCRVL(
+            # Lower threshold to catch small checkboxes
+            layout_threshold=0.35,
+            
+            # Expand boxes slightly to capture checkbox borders
+            layout_unclip_ratio=1.15,
+            
+            # Keep individual boxes separate
+            layout_merge_bboxes_mode="small",
+            
+            # Don't merge nearby boxes
+            layout_nms=False,
+            
+            # Keep layout detection for structured parsing
+            use_layout_detection=True,
+    )
     print("✅ PaddleOCR-VL loaded")
     return pipeline
 
@@ -133,7 +148,7 @@ def extract_ocr_text_vl(pipeline, image_path, save_debug=True):
     print(f"🔍 OCR-VL: {Path(image_path).name}")
     
     # Use PaddleOCR-VL pipeline
-    output = pipeline.predict(str(image_path))
+    output = pipeline.predict(str(image_path), temperature=0.0)
     markdown_content = ""
     
     # Save debug outputs (JSON and Markdown)
