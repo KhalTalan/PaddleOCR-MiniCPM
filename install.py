@@ -188,17 +188,6 @@ def main():
         print("   pip install flash-attn==2.5.8 --no-build-isolation")
     
     print(f"{'='*70}\n")
-    
-    # Create diagnostic file
-    print("💾 Creating diagnostic file...")
-    with open("installation_report.txt", "w") as f:
-        f.write(f"Installation Report\n")
-        f.write(f"={'='*50}\n")
-        f.write(f"Success Rate: {success_count}/{total_count} ({100*success_count/total_count:.1f}%)\n")
-        f.write(f"Verification: {'PASSED' if verification_success else 'FAILED'}\n")
-        f.write(f"\nPython: {sys.version}\n")
-        f.write(f"Executable: {sys.executable}\n")
-    print("✅ Report saved: installation_report.txt\n")
 
 if __name__ == "__main__":
     main()

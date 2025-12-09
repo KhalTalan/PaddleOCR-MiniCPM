@@ -125,13 +125,13 @@ def load_paddleocr_vl():
     from paddleocr import PaddleOCRVL
     pipeline = PaddleOCRVL(
             # Lower threshold to catch small checkboxes
-            layout_threshold=0.35,
+            layout_threshold=0.25,
             
             # Expand boxes slightly to capture checkbox borders
             layout_unclip_ratio=1.15,
             
             # Keep individual boxes separate
-            layout_merge_bboxes_mode="small",
+            layout_merge_bboxes_mode="union",
             
             # Don't merge nearby boxes
             layout_nms=False,
@@ -148,7 +148,7 @@ def extract_ocr_text_vl(pipeline, image_path, save_debug=True):
     print(f"🔍 OCR-VL: {Path(image_path).name}")
     
     # Use PaddleOCR-VL pipeline
-    output = pipeline.predict(str(image_path))
+    output = pipeline.predict(str(image_path), prompt_label="table")
     markdown_content = ""
     
     # Save debug outputs (JSON and Markdown)
