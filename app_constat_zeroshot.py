@@ -148,7 +148,7 @@ def extract_ocr_text_vl(pipeline, image_path, save_debug=True):
     print(f"🔍 OCR-VL: {Path(image_path).name}")
     
     # Use PaddleOCR-VL pipeline
-    output = pipeline.predict(str(image_path), prompt_label="table")
+    output = pipeline.predict(str(image_path), prompt_label="ocr")
     markdown_content = ""
     
     # Save debug outputs (JSON and Markdown)
