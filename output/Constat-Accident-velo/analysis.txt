@@ -1,0 +1,37 @@
+1. ACCIDENT DETAILS
+Date: 16/12/2012, Time: 11h11
+Location: ONDES(31), France
+Injuries: None | Other damage: No
+Witnesses: Not specified
+
+2. VEHICLE A (Left)
+Driver: ROBERT Guillaume
+Address: Not provided
+Marque, type: Vèle look SSS
+N° d'immatric.: Not provided
+Insurance: GAN #8459274
+Observation: "N'avait pas de clignotant!" - Fault with Vehicle B for not signaling the turn.
+
+3. VEHICLE B (Right)
+Driver: PUIOL Guillaume
+Address: Not provided
+Marque, type: Peugeot 307
+N° d'immatric.: Not provided
+Insurance: FLITTER #F-20123975
+Observation: "Était sur son téléphone!" - Fault with Vehicle A for phone distraction.
+
+4. CIRCUMSTANCES (Section 12 Image)
+- Vehicle A: Box 11 checked (rear fender and bumper damaged).
+- Vehicle B: Box 12 checked (turning right).
+
+5. RECONSTRUCTION
+- Vehicle A was following behind in same lane.
+- Vehicle B turned right without signaling.
+- Vehicle A rear-ended Vehicle B during the turn.
+
+6. FAULT ANALYSIS
+- Vehicle A is primarily at fault due to rear-ending Vehicle B.
+- Vehicle B bears minor fault for failing to signal a turn.
+
+Conclusion:
+Vehicle A is primarily responsible for the accident as it failed to maintain a safe distance and rear-ended Vehicle B while it was turning right without signaling.
