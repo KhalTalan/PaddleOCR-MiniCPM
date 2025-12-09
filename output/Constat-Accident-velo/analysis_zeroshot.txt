@@ -1,0 +1,57 @@
+---
+**CONSTAT AMIABLE ANALYSIS**
+
+1. **ACCIDENT DETAILS**
+   - Date: 16/12/2012
+   - Time: 11/11
+   - Location: ONDES (31)
+   - Injuries: [Yes, checked in Section 3]
+   - Other damage: [Yes, checked in Section 4]
+   - Witnesses: Not specified
+
+2. **VEHICLE A (Left side of form)**
+   - Driver: ROBERT GUILLAUME
+   - Address: [Not fully visible], Phone: [Not fully visible]
+   - Vehicle: Vèle look SSS
+   - Insurance: Assurances GAN
+   - License: Category not specified, Number and Validity details are not clear.
+   - Damage: 
+     - Pedals, brakes,
+     - Frame, derailleur,
+     - Wheel
+   - Observation: "Telephone portable cassie + Caxque + Chaussure" 
+
+3. **VEHICLE B (Right side of form)**
+   - Driver: PUILOL
+   - Address: [Not fully visible], Phone: [Not fully visible]
+   - Vehicle: Peugeot 307
+   - Insurance: GAN
+   - License: Category not specified, Number and Validity details are not clear.
+
+4. **CIRCUMSTANCES (Section 12)**
+   - Vehicle A:
+     - Box 8: Roulait dans le même sens et sur la même file
+     - Box 10: Changeait de file
+     - Box 11: Doublait
+     - Box 12: Virait à droite
+     - Box 13: Virait à gauche
+     - Box 14: Reculait
+     - Box 15: Empli était sur la partie de chaussée réservée à la circulation en sens inverse
+     - Box 16: Venait de droite (dans un carrefour)
+     - Box 17: N'avait pas observé un signal de priorité
+   - Vehicle B:
+     - No checkmarks or cross marks observed for this vehicle
+
+5. **RECONSTRUCTION**
+   - Based on the checkboxes from Section 12, it appears that Vehicle A was moving in the same direction as Vehicle B but changed lanes while Vehicle A was turning right. Vehicle B might have been reversing or changing lanes too. The exact positions at the time of impact can be inferred from the sketch in Section 13, but it is partially obscured.
+
+6. **FAULT ANALYSIS**
+   - Vehicle A's fault likely lies with changing lanes when another vehicle had the right of way (Box 10). Vehicle B seems to have been either reversing or changing lanes, which could lead to a collision if both vehicles were in close proximity.
+   - Based on French traffic liability rules, Vehicle A would bear more responsibility due to changing lanes without ensuring safety first.
+
+7. **SUMMARY**
+   - Date: December 16, 2012
+   - Location: ONDES (31)
+   - Incident involved injuries and other damages to two vehicles.
+   - Vehicle A driver Robert Guillaume changed lanes while turning right, leading to an accident involving Vehicle B driven by PUILOL.
+   - Vehicle A bears primary fault due to lane change without proper signaling or checking for oncoming traffic.
