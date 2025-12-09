@@ -129,13 +129,18 @@ def extract_section_12_crop(image_path, output_path=None):
          if valid_x:
              min_content_x = min(valid_x)
              max_content_x = max(valid_x)
-             print(f"   📏 Content Width: {min_content_x}-{max_content_x}")
+             print(f"   📏 Detected Table Width: {min_content_x}-{max_content_x}")
              
              if is_header_table:
-                 # Table bbox usually captures the lines.
-                 # Trust the exact boundaries
-                 crop_x1 = max(0, min_content_x)
-                 crop_x2 = min(w, max_content_x)
+                 # The table often includes the ENTIRE form body (Sections 6-13).
+                 # Section 12 is just the CENTER column with checkboxes.
+                 # Calculate center and crop a fixed width around it.
+                 center_x = (min_content_x + max_content_x) // 2
+                 section12_width = 300  # Approximate width of checkbox column
+                 
+                 crop_x1 = max(0, center_x - section12_width // 2)
+                 crop_x2 = min(w, center_x + section12_width // 2)
+                 print(f"   📌 Using center crop (Section 12 is narrow): Center={center_x}, Width={section12_width}")
              else:
                  # If detected via text labels, we need significant padding to find checkboxes.
                  expand_x = 100 
