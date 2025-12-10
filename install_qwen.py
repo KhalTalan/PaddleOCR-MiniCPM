@@ -15,6 +15,20 @@ def run(cmd, check=True):
     result = subprocess.run(cmd, shell=True, check=check)
     return result.returncode == 0
 
+def get_flash_attn_wheel():
+    """Get correct prebuilt wheel URL for the environment"""
+    # Detect Python version
+    py_version = f"cp{sys.version_info.major}{sys.version_info.minor}"
+    
+    # Flash Attention v2.6.3 wheels available for torch 2.4, cu123
+    # Using torch 2.4 compatible wheels with PyTorch 2.5 (should work)
+    # Format: flash_attn-2.6.3+cu123torch2.4cxx11abiFALSE-{py}-{py}-linux_x86_64.whl
+    
+    base_url = "https://github.com/Dao-AILab/flash-attention/releases/download/v2.6.3"
+    wheel_name = f"flash_attn-2.6.3+cu123torch2.4cxx11abiFALSE-{py_version}-{py_version}-linux_x86_64.whl"
+    
+    return f"{base_url}/{wheel_name}"
+
 def main():
     print("=" * 60)
     print("🚀 Qwen3-VL-8B Complete Installation")
@@ -25,7 +39,7 @@ def main():
     # 1. Upgrade pip
     run(f"{sys.executable} -m pip install --upgrade pip")
     
-    # 2. Install PyTorch with CUDA 12.4 (latest stable)
+    # 2. Install PyTorch with CUDA 12.4
     print("\n📦 Step 1: Installing PyTorch 2.5.1 with CUDA 12.4...")
     run(f"{sys.executable} -m pip install torch==2.5.1 torchvision --index-url https://download.pytorch.org/whl/cu124")
     
@@ -33,13 +47,18 @@ def main():
     print("\n📦 Step 2: Installing Transformers >=4.57.0...")
     run(f"{sys.executable} -m pip install 'transformers>=4.57.0'")
     
-    # 4. Install Flash Attention 2
-    print("\n⚡ Step 3: Installing Flash Attention 2...")
-    # Install build dependencies first
-    run(f"{sys.executable} -m pip install ninja packaging wheel", check=False)
-    # Try precompiled wheel
-    if not run(f"{sys.executable} -m pip install flash-attn --no-build-isolation", check=False):
-        print("   ⚠️  Flash Attention build failed - will use SDPA instead")
+    # 4. Install Flash Attention 2 from prebuilt wheel
+    print("\n⚡ Step 3: Installing Flash Attention 2 (prebuilt wheel)...")
+    # Uninstall old version first
+    run(f"{sys.executable} -m pip uninstall flash-attn -y", check=False)
+    
+    # Install prebuilt wheel from GitHub releases
+    wheel_url = get_flash_attn_wheel()
+    print(f"   Downloading: {wheel_url}")
+    if not run(f"{sys.executable} -m pip install {wheel_url}", check=False):
+        print("   ⚠️  Prebuilt wheel failed, trying pip build...")
+        run(f"{sys.executable} -m pip install ninja packaging")
+        run(f"{sys.executable} -m pip install flash-attn --no-build-isolation", check=False)
     
     # 5. Install other dependencies
     print("\n📦 Step 4: Installing supporting packages...")
