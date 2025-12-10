@@ -12,6 +12,7 @@ from transformers import Qwen3VLForConditionalGeneration, AutoProcessor
 from pathlib import Path
 import os
 import sys
+import re
 from dotenv import load_dotenv
 
 # Import utilities
@@ -247,9 +248,14 @@ def test_two_step_analysis(test_image_path, output_dir):
     # Load model once
     model, processor = load_qwen()
     
-    # Step 0: Crop Section 12 and save to output directory
+    # Step 0: Crop Section 12 using VLM detection
     print("\n✂️  STEP 0: Cropping Section 12...")
-    crop_path = extract_section_12_crop(str(test_image_path), output_dir=output_dir)
+    crop_path = extract_section_12_crop(
+        str(test_image_path), 
+        output_dir=output_dir,
+        model=model,
+        processor=processor
+    )
     if not crop_path:
         print("❌ Cropping failed")
         return None

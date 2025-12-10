@@ -1,80 +1,160 @@
-import cv2
-import numpy as np
-from pathlib import Path
+"""
+Utility to crop Section 12 (Circonstances) from Constat Amiable forms.
+Uses Qwen VLM to detect the exact bounding box coordinates.
+"""
 
-def extract_section_12_crop(image_path, output_path=None, output_dir=None, debug=False):
+from PIL import Image
+from pathlib import Path
+import re
+
+
+def ask_qwen_for_bbox(model, processor, image_path):
     """
-    Extracts Section 12 using MANUAL COORDINATES.
-    Since Constat forms are standardized, we use percentage-based cropping.
+    Ask Qwen to identify Section 12 bounding box coordinates.
+    Returns (left, top, right, bottom) or None if failed.
+    """
+    prompt = """Look at this French Constat Amiable accident report form.
+
+Find Section 12 "CIRCONSTANCES" which contains the checkbox grid (17 rows) with:
+- Blue column on the left (Vehicle A)
+- Yellow column on the right (Vehicle B)
+
+Return ONLY the bounding box coordinates in this exact format:
+LEFT,TOP,RIGHT,BOTTOM
+
+Where:
+- LEFT = x-coordinate of the left edge of Section 12
+- TOP = y-coordinate of the top edge (where "12. CIRCONSTANCES" header starts)
+- RIGHT = x-coordinate of the right edge
+- BOTTOM = y-coordinate of the bottom edge (after the last checkbox row and manual count numbers)
+
+Example response: 100,250,700,900
+
+Now provide the coordinates for this image:"""
+    
+    # Build message
+    messages = [{
+        "role": "user",
+        "content": [
+            {"type": "image", "image": str(image_path)},
+            {"type": "text", "text": prompt}
+        ]
+    }]
+    
+    try:
+        # Apply chat template
+        inputs = processor.apply_chat_template(
+            messages,
+            tokenize=True,
+            add_generation_prompt=True,
+            return_dict=True,
+            return_tensors="pt"
+        )
+        inputs = inputs.to(model.device)
+        
+        # Generate
+        generated_ids = model.generate(
+            **inputs,
+            max_new_tokens=100,
+            temperature=0.1,  # Low temp for precise coordinates
+            top_p=0.9
+        )
+        
+        # Decode
+        generated_ids_trimmed = [
+            out_ids[len(in_ids):] 
+            for in_ids, out_ids in zip(inputs.input_ids, generated_ids)
+        ]
+        
+        output_text = processor.batch_decode(
+            generated_ids_trimmed,
+            skip_special_tokens=True,
+            clean_up_tokenization_spaces=False
+        )[0]
+        
+        print(f"   Qwen response: {output_text}")
+        
+        # Parse coordinates from response
+        # Look for pattern: number,number,number,number
+        match = re.search(r'(\d+),\s*(\d+),\s*(\d+),\s*(\d+)', output_text)
+        if match:
+            left, top, right, bottom = map(int, match.groups())
+            return left, top, right, bottom
+        
+        return None
+        
+    except Exception as e:
+        print(f"   ⚠️ Qwen detection failed: {e}")
+        return None
+
+
+def extract_section_12_crop(image_path, output_dir=None, model=None, processor=None):
+    """
+    Extract Section 12 using VLM detection.
     
     Args:
-        image_path: Path to input image
-        output_path: Full path for output file (overrides output_dir)
-        output_dir: Directory to save crop (uses default filename)
-        debug: Save debug image showing crop region
+        image_path: Path to the full Constat image
+        output_dir: Directory to save crop (default: same as input)
+        model: Qwen model (if None, falls back to percentage-based)
+        processor: Qwen processor (if None, falls back to percentage-based)
+    
+    Returns:
+        Path to cropped image, or None if failed
     """
     image_path = Path(image_path)
     
-    if output_path is None:
-        if output_dir is not None:
-            output_dir = Path(output_dir)
-            output_dir.mkdir(parents=True, exist_ok=True)
-            output_path = output_dir / f"{image_path.stem}_crop_section12{image_path.suffix}"
+    try:
+        img = Image.open(image_path).convert('RGB')
+        width, height = img.size
+        
+        # Try VLM detection if model provided
+        if model is not None and processor is not None:
+            print(f"   Using Qwen VLM for bbox detection...")
+            bbox = ask_qwen_for_bbox(model, processor, image_path)
+            
+            if bbox:
+                left, top, right, bottom = bbox
+                print(f"   VLM detected: L={left}, T={top}, R={right}, B={bottom}")
+            else:
+                print("   ⚠️ VLM detection failed, using fallback")
+                left = int(width * 0.01)
+                right = int(width * 0.99)
+                top = int(height * 0.40)
+                bottom = int(height * 0.70)
         else:
-            output_path = image_path.parent / f"{image_path.stem}_crop_section12{image_path.suffix}"
-    
-    print(f"✂️  Cropping Section 12 (Manual Method): {image_path.name}")
-    
-    # Load image
-    img = cv2.imread(str(image_path))
-    if img is None:
-        print(f"❌ Could not load image")
+            # Fallback to percentage-based
+            print("   No VLM provided, using fallback percentages")
+            left = int(width * 0.01)
+            right = int(width * 0.99)
+            top = int(height * 0.40)
+            bottom = int(height * 0.70)
+        
+        print(f"   Final crop: L={left}, T={top}, R={right}, B={bottom}")
+        
+        # Crop
+        cropped = img.crop((left, top, right, bottom))
+        
+        # Determine output path
+        if output_dir is None:
+            output_dir = image_path.parent
+        else:
+            output_dir = Path(output_dir)
+        output_dir.mkdir(parents=True, exist_ok=True)
+        
+        crop_path = output_dir / f"{image_path.stem}_crop_section12.jpg"
+        cropped.save(crop_path, quality=95)
+        
+        print(f"✅ Saved: {crop_path}")
+        return str(crop_path)
+        
+    except Exception as e:
+        print(f"❌ Cropping failed: {e}")
+        import traceback
+        traceback.print_exc()
         return None
-    
-    h, w = img.shape[:2]
-    print(f"   📐 Image size: {w}x{h}")
-    
-    # STANDARDIZED CONSTAT FORM LAYOUT (percentages):
-    # - Top 15%: Header (blue bar "CONSTAT AMIABLE...")
-    # - Next 5%: Date/Location fields  
-    # - Next 45%: Vehicle details + Section 12 checkboxes
-    # - Bottom 35%: Signatures, observations
-    
-    # Section 12 is typically:
-    # - Vertical: 20-65% of height (below header, above signatures)
-    # - Horizontal: CENTER 40% of width (between yellow columns)
-    
-    # Vertical crop (Section 12 is in middle portion)
-    crop_y1 = int(h * 0.20)  # Start after header/date (20%)
-    crop_y2 = int(h * 0.70)  # End before signatures (70%)
-    
-    # Horizontal crop (Section 12 is center column)
-    crop_x1 = int(w * 0.35)  # Left edge of center column
-    crop_x2 = int(w * 0.65)  # Right edge of center column
-    
-    print(f"   ✂️  Crop region: x=[{crop_x1}, {crop_x2}] ({crop_x2-crop_x1}px), y=[{crop_y1}, {crop_y2}] ({crop_y2-crop_y1}px)")
-    
-    # Execute crop
-    crop_img = img[crop_y1:crop_y2, crop_x1:crop_x2]
-    
-    # Save
-    cv2.imwrite(str(output_path), crop_img)
-    print(f"✅ Saved: {output_path}")
-    
-    if debug:
-        # Save annotated version showing crop region
-        debug_img = img.copy()
-        cv2.rectangle(debug_img, (crop_x1, crop_y1), (crop_x2, crop_y2), (0, 255, 0), 3)
-        debug_path = image_path.parent / f"{image_path.stem}_crop_debug.jpg"
-        cv2.imwrite(str(debug_path), debug_img)
-        print(f"   🔍 Debug image: {debug_path}")
-    
-    return str(output_path)
+
 
 if __name__ == "__main__":
-    import argparse
-    parser = argparse.ArgumentParser()
-    parser.add_argument("image_path")
-    parser.add_argument("--debug", action="store_true", help="Save debug image showing crop region")
-    args = parser.parse_args()
-    extract_section_12_crop(args.image_path, debug=args.debug)
+    import sys
+    print("This module requires Qwen model to be loaded.")
+    print("Use from test_qwen_twostep.py instead.")
