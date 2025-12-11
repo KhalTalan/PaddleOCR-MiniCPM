@@ -1,0 +1,3 @@
+[submodule "Real_ESRGAN-PyTorch"]
+	path = Real_ESRGAN-PyTorch
+	url = https://github.com/Lornatang/Real_ESRGAN-PyTorch.git
