@@ -16,7 +16,6 @@ def load_paddleocr_vl():
     pipeline = PaddleOCRVL(
         use_doc_orientation_classify=False,
         use_doc_unwarping=False,
-        use_textline_orientation=False,
     )
     
     print("✅ PaddleOCR-VL loaded")
