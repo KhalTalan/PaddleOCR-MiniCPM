@@ -314,7 +314,7 @@ def main():
     
     # Create output directory structure: output_qwen/imagename/
     test_name = Path(test_image_path).stem
-    output_dir = Path(__file__).parent / "output_qwen" / test_name
+    output_dir = Path(__file__).parent / "output/qwen" / test_name
     output_dir.mkdir(parents=True, exist_ok=True)
     
     # Run two-step analysis

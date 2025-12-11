@@ -217,7 +217,7 @@ def extract_section_12_crop(image_path, output_dir=None):
         # Determine output path - use dedicated output directory
         if output_dir is None:
             # Default: save to output_crops/ at project root
-            output_dir = Path(__file__).parent.parent / "output"
+            output_dir = Path(__file__).parent.parent / "output/crops"
         else:
             output_dir = Path(output_dir)
         output_dir.mkdir(parents=True, exist_ok=True)
