@@ -17,7 +17,11 @@ from dotenv import load_dotenv
 # Import utilities
 sys.path.insert(0, str(Path(__file__).parent))
 from utils.crop_utils import extract_section_12_crop
-from utils.preprocess import preprocess_image
+
+# Real-ESRGAN paths
+REAL_ESRGAN_DIR = Path(__file__).parent / "Real_ESRGAN"
+CROPS_DIR = Path(__file__).parent / "output" / "crops"
+GAN_DIR = Path(__file__).parent / "output" / "gan"
 
 load_dotenv()
 
@@ -253,43 +257,77 @@ def generate_full_analysis(model, processor, full_image_path, checkbox_data):
         return error_msg
 
 
+def run_real_esrgan():
+    """Run Real-ESRGAN on all images in output/crops/"""
+    import subprocess
+    
+    config_path = REAL_ESRGAN_DIR / "configs" / "inference" / "images.yaml"
+    script_path = REAL_ESRGAN_DIR / "demo" / "inference_images.py"
+    
+    if not config_path.exists():
+        print(f"   ⚠️  Config not found: {config_path}")
+        return False
+    
+    print("\n🎨 Running Real-ESRGAN super-resolution...")
+    result = subprocess.run(
+        [sys.executable, str(script_path), str(config_path)],
+        capture_output=True,
+        text=True
+    )
+    
+    if result.returncode == 0:
+        print("   ✅ Real-ESRGAN enhancement complete")
+        return True
+    else:
+        print(f"   ❌ Real-ESRGAN failed: {result.stderr}")
+        return False
+
+
 # ================== MAIN ==================
 
 def test_two_step_analysis(test_image_path, output_dir):
-    """Two-step VLM analysis without OCR"""
-    print("\n🧪 TWO-STEP QWEN3-VL ANALYSIS (NO OCR)\n")
+    """Two-step VLM analysis with Real-ESRGAN enhancement"""
+    print("\n🧪 TWO-STEP QWEN3-VL ANALYSIS WITH GAN ENHANCEMENT\n")
     print("=" * 70)
     
     test_image_path = Path(test_image_path)
+    test_name = test_image_path.stem
     
     # Load model once
     model, processor = load_qwen()
     
-    # Step 0: Crop Section 12 and save to output directory
+    # Step 0: Crop Section 12 to output/crops/
     print("\n✂️  STEP 0: Cropping Section 12...")
-    crop_path = extract_section_12_crop(str(test_image_path), output_dir=output_dir)
+    crop_path = extract_section_12_crop(str(test_image_path))  # Goes to output/crops/
     if not crop_path:
         print("❌ Cropping failed")
         return None
     
-    # Preprocess crop for better checkbox detection
-    print("\n🎨 Preprocessing crop...")
-    crop_enhanced = preprocess_image(crop_path, output_dir=output_dir)
+    # Step 0.5: Enhance crop with Real-ESRGAN
+    print("\n⚡ STEP 0.5: Enhancing with Real-ESRGAN...")
+    run_real_esrgan()
+    
+    # Find enhanced image in output/gan/
+    crop_filename = Path(crop_path).name
+    enhanced_crop_path = GAN_DIR / crop_filename
+    
+    if enhanced_crop_path.exists():
+        print(f"   Using enhanced: {enhanced_crop_path}")
+        analysis_crop = enhanced_crop_path
+    else:
+        print(f"   ⚠️  Enhanced not found, using original crop")
+        analysis_crop = crop_path
     
     # Step 1: Extract checkboxes from ENHANCED crop
-    checkbox_data = extract_checkboxes(model, processor, crop_enhanced)
+    checkbox_data = extract_checkboxes(model, processor, analysis_crop)
     
     # Save immediately after Step 1
     with open(output_dir / "checkboxes.txt", 'w', encoding='utf-8') as f:
         f.write(checkbox_data)
     print(f"💾 Saved: {output_dir}/checkboxes.txt")
     
-    # Preprocess full image for Step 2
-    print("\n🎨 Preprocessing full image...")
-    full_enhanced = preprocess_image(str(test_image_path), output_dir=output_dir)
-    
-    # Step 2: Generate full analysis using ENHANCED full image
-    full_analysis = generate_full_analysis(model, processor, full_enhanced, checkbox_data)
+    # Step 2: Full analysis using original full image + checkbox data
+    full_analysis = generate_full_analysis(model, processor, str(test_image_path), checkbox_data)
     
     return {
         'checkbox_data': checkbox_data,
