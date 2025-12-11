@@ -235,9 +235,33 @@ def extract_section_12_crop(image_path, output_dir=None):
         return None
 
 
+def extract_and_enhance(image_path, output_dir=None):
+    """
+    Crop Section 12 AND enhance the cropped image.
+    Returns path to the enhanced crop.
+    """
+    from preprocess import preprocess_image
+    
+    crop_path = extract_section_12_crop(image_path, output_dir)
+    
+    if crop_path:
+        # Enhance the cropped image
+        enhanced_path = preprocess_image(crop_path, output_dir)
+        return enhanced_path
+    
+    return None
+
+
 if __name__ == "__main__":
     import sys
     if len(sys.argv) > 1:
-        extract_section_12_crop(sys.argv[1])
+        enhance = "--enhance" in sys.argv or "-e" in sys.argv
+        image_path = [arg for arg in sys.argv[1:] if not arg.startswith("-")][0]
+        
+        if enhance:
+            extract_and_enhance(image_path)
+        else:
+            extract_section_12_crop(image_path)
     else:
-        print("Usage: python crop_utils.py <image_path>")
+        print("Usage: python crop_utils.py <image_path> [--enhance]")
+        print("  --enhance, -e: Also enhance the cropped image")

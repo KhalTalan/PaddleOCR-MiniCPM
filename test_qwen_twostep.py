@@ -126,10 +126,10 @@ def generate_response(model, processor, messages):
 def build_checkbox_prompt():
     """Prompt for Step 1: Extract checkboxes from crop"""
     return """
-    
 TASK: Analyze Section 12 "CIRCONSTANCES" checkboxes on the provided image.
 
 RULES:
+- **Important dont confuse the last box (18th) as a marqued checkbox, its for the total number of marqued checkboxes**.
 - Each label applies to both Vehicle A (left column) and Vehicle B (right column).
 - CHECKED = any ink/mark inside the box (X, ✓, cross, scribble, dot, partial stroke).
 - EMPTY = completely blank/white inside box.
@@ -137,6 +137,7 @@ RULES:
 - MISSING = box is missing from the crop (provide justification).
 - Ignore ink outside the box unless >50% falls inside the box interior.
 - Provide integer confidence 0-100; explain if confidence <70%.
+- **Important dont confuse the last box (18th) as a marqued checkbox, its for the total number of marqued checkboxes**.
 
 OUTPUT FORMAT (JSON ONLY):
 {
@@ -155,7 +156,7 @@ OUTPUT FORMAT (JSON ONLY):
       "vehicle_B": {"status":"CHECKED|EMPTY|UNCERTAIN|MISSING","confidence":0-100,"justification":""}
     }
   ],
-  "manual_counts": {
+  "marked_cases": {
     "vehicle_A":{"value":0,"confidence":0-100,"justification":""},
     "vehicle_B":{"value":0,"confidence":0-100,"justification":""}
   },
@@ -163,8 +164,7 @@ OUTPUT FORMAT (JSON ONLY):
 }
 
 IMPORTANT: Output ONLY the JSON, no extra text.
-    
-    """
+"""
 
 
 def extract_checkboxes(model, processor, crop_image_path):
