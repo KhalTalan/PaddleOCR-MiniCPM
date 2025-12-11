@@ -12,7 +12,6 @@ from transformers import Qwen3VLForConditionalGeneration, AutoProcessor
 from pathlib import Path
 import os
 import sys
-import re
 from dotenv import load_dotenv
 
 # Import utilities
@@ -126,28 +125,46 @@ def generate_response(model, processor, messages):
 
 def build_checkbox_prompt():
     """Prompt for Step 1: Extract checkboxes from crop"""
-    return """Analyze this Section (Circonstances) checkboxes.
+    return """
+    
+TASK: Analyze Section 12 "CIRCONSTANCES" checkboxes on the provided image.
 
-HOW TO DETECT CHECKED BOXES:
-- CHECKED: Box contains X, ✓, tick mark, cross, scribble, or any ink/marking inside
-- EMPTY: Box is blank/white with no marks inside
+RULES:
+- Each label applies to both Vehicle A (left column) and Vehicle B (right column).
+- CHECKED = any ink/mark inside the box (X, ✓, cross, scribble, dot, partial stroke).
+- EMPTY = completely blank/white inside box.
+- UNCERTAIN = smudge, low contrast, cropped, or ambiguous marks (provide justification).
+- MISSING = box is missing from the crop (provide justification).
+- Ignore ink outside the box unless >50% falls inside the box interior.
+- Provide integer confidence 0-100; explain if confidence <70%.
 
-For VEHICLE A (Left column) - List all 17 boxes:
-Box 1 (stationnement): ☐ EMPTY or ☑ CHECKED (confidence %)
-...
-Box 17 (signal priorité): ☐ EMPTY or ☑ CHECKED (confidence %)
-Same for vehicle B
-For VEHICLE B (Right column) - List all 17 boxes:
-Box 1 (stationnement): ☐ EMPTY or ☑ CHECKED (confidence %)
-...
-Box 17 (signal priorité): ☐ EMPTY or ☑ CHECKED (confidence %)
-Then
-MANUAL COUNTS :
-Vehicle A count: [read number] (confidence %)
-Vehicle B count: [read number] (confidence %)
+OUTPUT FORMAT (JSON ONLY):
+{
+  "boxes": [
+    {
+      "index": 1,
+      "label": "stationnement",
+      "vehicle_A": {"status":"CHECKED|EMPTY|UNCERTAIN|MISSING","confidence":0-100,"justification":""},
+      "vehicle_B": {"status":"CHECKED|EMPTY|UNCERTAIN|MISSING","confidence":0-100,"justification":""}
+    },
+    ...
+    {
+      "index": 17,
+      "label": "signal de priorité",
+      "vehicle_A": {"status":"CHECKED|EMPTY|UNCERTAIN|MISSING","confidence":0-100,"justification":""},
+      "vehicle_B": {"status":"CHECKED|EMPTY|UNCERTAIN|MISSING","confidence":0-100,"justification":""}
+    }
+  ],
+  "manual_counts": {
+    "vehicle_A":{"value":0,"confidence":0-100,"justification":""},
+    "vehicle_B":{"value":0,"confidence":0-100,"justification":""}
+  },
+  "meta":{"image_id":"<optional>","timestamp":"<iso>","notes":["anything unusual like skew, crop, bleed"]}
+}
 
-VERIFICATION: Your detected count must match the printed count. If mismatch, recheck uncertain boxes, the important part is stating each box what it represents and wether its checked or not.
-"""
+IMPORTANT: Output ONLY the JSON, no extra text.
+    
+    """
 
 
 def extract_checkboxes(model, processor, crop_image_path):
@@ -248,14 +265,9 @@ def test_two_step_analysis(test_image_path, output_dir):
     # Load model once
     model, processor = load_qwen()
     
-    # Step 0: Crop Section 12 using VLM detection
+    # Step 0: Crop Section 12 and save to output directory
     print("\n✂️  STEP 0: Cropping Section 12...")
-    crop_path = extract_section_12_crop(
-        str(test_image_path), 
-        output_dir=output_dir,
-        model=model,
-        processor=processor
-    )
+    crop_path = extract_section_12_crop(str(test_image_path), output_dir=output_dir)
     if not crop_path:
         print("❌ Cropping failed")
         return None

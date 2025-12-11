@@ -1,102 +1,171 @@
 """
 Utility to crop Section 12 (Circonstances) from Constat Amiable forms.
-Uses Qwen VLM to detect the exact bounding box coordinates.
+Uses color detection for all bounds:
+- Horizontal: scan from center to find blue (left) and yellow (right)
+- Vertical top: find first row with both colors
+- Vertical bottom: detect when blue/yellow columns become narrower
 """
 
 from PIL import Image
+import numpy as np
 from pathlib import Path
-import re
 
 
-def ask_qwen_for_bbox(model, processor, image_path):
-    """
-    Ask Qwen to identify Section 12 bounding box coordinates.
-    Returns (left, top, right, bottom) or None if failed.
-    """
-    prompt = """Look at this French Constat Amiable accident report form.
+def is_blue_pixel(r, g, b):
+    """Check if pixel is blue (Vehicle A color)"""
+    return b > 120 and b > r and b > g and r < 150
 
-Find Section 12 "CIRCONSTANCES" which contains the checkbox grid (17 rows) with:
-- Blue column on the left (Vehicle A)
-- Yellow column on the right (Vehicle B)
+def is_yellow_pixel(r, g, b):
+    """Check if pixel is yellow (Vehicle B color)"""
+    return r > 180 and g > 150 and b < 120
 
-Return ONLY the bounding box coordinates in this exact format:
-LEFT,TOP,RIGHT,BOTTOM
 
-Where:
-- LEFT = x-coordinate of the left edge of Section 12
-- TOP = y-coordinate of the top edge (where "12. CIRCONSTANCES" header starts)
-- RIGHT = x-coordinate of the right edge
-- BOTTOM = y-coordinate of the bottom edge (after the last checkbox row and manual count numbers)
-
-Example response: 100,250,700,900
-
-Now provide the coordinates for this image:"""
+def find_horizontal_bounds(img_array, sample_rows):
+    """Find left (blue) and right (yellow) by scanning from center."""
+    height, width = img_array.shape[:2]
+    center_x = width // 2
     
-    # Build message
-    messages = [{
-        "role": "user",
-        "content": [
-            {"type": "image", "image": str(image_path)},
-            {"type": "text", "text": prompt}
-        ]
-    }]
+    left_bounds = []
+    right_bounds = []
     
-    try:
-        # Apply chat template
-        inputs = processor.apply_chat_template(
-            messages,
-            tokenize=True,
-            add_generation_prompt=True,
-            return_dict=True,
-            return_tensors="pt"
-        )
-        inputs = inputs.to(model.device)
+    for row in sample_rows:
+        if row >= height:
+            continue
+            
+        # Scan LEFT from center to find blue
+        for x in range(center_x, 0, -1):
+            r, g, b = img_array[row, x]
+            if is_blue_pixel(r, g, b):
+                left_bounds.append(x)
+                break
         
-        # Generate
-        generated_ids = model.generate(
-            **inputs,
-            max_new_tokens=100,
-            temperature=0.1,  # Low temp for precise coordinates
-            top_p=0.9
-        )
-        
-        # Decode
-        generated_ids_trimmed = [
-            out_ids[len(in_ids):] 
-            for in_ids, out_ids in zip(inputs.input_ids, generated_ids)
-        ]
-        
-        output_text = processor.batch_decode(
-            generated_ids_trimmed,
-            skip_special_tokens=True,
-            clean_up_tokenization_spaces=False
-        )[0]
-        
-        print(f"   Qwen response: {output_text}")
-        
-        # Parse coordinates from response
-        # Look for pattern: number,number,number,number
-        match = re.search(r'(\d+),\s*(\d+),\s*(\d+),\s*(\d+)', output_text)
-        if match:
-            left, top, right, bottom = map(int, match.groups())
-            return left, top, right, bottom
-        
-        return None
-        
-    except Exception as e:
-        print(f"   ⚠️ Qwen detection failed: {e}")
-        return None
+        # Scan RIGHT from center to find yellow
+        for x in range(center_x, width):
+            r, g, b = img_array[row, x]
+            if is_yellow_pixel(r, g, b):
+                right_bounds.append(x)
+                break
+    
+    if left_bounds and right_bounds:
+        return min(left_bounds), max(right_bounds)
+    return None, None
 
 
-def extract_section_12_crop(image_path, output_dir=None, model=None, processor=None):
+def measure_color_width(img_array, row, left, right):
+    """Measure the width of blue and yellow regions in a row."""
+    width = img_array.shape[1]
+    
+    blue_pixels = 0
+    yellow_pixels = 0
+    
+    # Count blue pixels near left boundary
+    for x in range(max(0, left - 30), min(width, left + 60)):
+        r, g, b = img_array[row, x]
+        if is_blue_pixel(r, g, b):
+            blue_pixels += 1
+    
+    # Count yellow pixels near right boundary
+    for x in range(max(0, right - 60), min(width, right + 30)):
+        r, g, b = img_array[row, x]
+        if is_yellow_pixel(r, g, b):
+            yellow_pixels += 1
+    
+    return blue_pixels, yellow_pixels
+
+
+def find_vertical_bounds(img_array, left, right):
     """
-    Extract Section 12 using VLM detection.
+    Find top and bottom:
+    - Top: first row with both blue and yellow
+    - Bottom: detect when color columns become narrower (Section 12 ends)
+    """
+    height, width = img_array.shape[:2]
+    
+    # Find top: first row with both colors
+    top = None
+    for row in range(height):
+        has_blue = False
+        has_yellow = False
+        
+        for x in range(max(0, left - 20), min(width, left + 50)):
+            r, g, b = img_array[row, x]
+            if is_blue_pixel(r, g, b):
+                has_blue = True
+                break
+        
+        for x in range(max(0, right - 50), min(width, right + 20)):
+            r, g, b = img_array[row, x]
+            if is_yellow_pixel(r, g, b):
+                has_yellow = True
+                break
+        
+        if has_blue and has_yellow:
+            top = row
+            break
+    
+    if top is None:
+        return None, None
+    
+    # Measure typical color width in Section 12 (sample from top area)
+    sample_widths = []
+    for row in range(top + 10, min(top + 100, height)):
+        blue_w, yellow_w = measure_color_width(img_array, row, left, right)
+        if blue_w > 5 and yellow_w > 5:
+            sample_widths.append((blue_w, yellow_w))
+    
+    if not sample_widths:
+        return top, None
+    
+    # Calculate typical width
+    avg_blue_width = sum(w[0] for w in sample_widths) / len(sample_widths)
+    avg_yellow_width = sum(w[1] for w in sample_widths) / len(sample_widths)
+    
+    print(f"   Typical widths: blue={avg_blue_width:.0f}, yellow={avg_yellow_width:.0f}")
+    
+    # Find bottom: where width drops significantly (< 10% of typical)
+    # Need 15 consecutive narrow rows to confirm end of section
+    bottom = None
+    consecutive_narrow = 0
+    
+    for row in range(top + 50, height):
+        blue_w, yellow_w = measure_color_width(img_array, row, left, right)
+        
+        # Check if width dropped significantly (must be BOTH narrow)
+        blue_narrow = blue_w < avg_blue_width * 0.1
+        yellow_narrow = yellow_w < avg_yellow_width * 0.1
+        
+        if blue_narrow and yellow_narrow:
+            consecutive_narrow += 1
+            if consecutive_narrow >= 15:
+                bottom = row - 15  # Go back to where it started narrowing
+                break
+        else:
+            consecutive_narrow = 0
+    
+    if bottom is None:
+        # Fallback: use last row with good width
+        for row in range(height - 1, top, -1):
+            blue_w, yellow_w = measure_color_width(img_array, row, left, right)
+            if blue_w > avg_blue_width * 0.5 and yellow_w > avg_yellow_width * 0.5:
+                bottom = row
+                break
+    
+    return top, bottom
+
+
+def extract_section_12_crop(image_path, output_dir=None):
+    """
+    Extract Section 12 (Circonstances) from a Constat Amiable form.
+    
+    Uses color detection for all bounds:
+    - Left: scan from center to find blue
+    - Right: scan from center to find yellow  
+    - Top: first row with both colors
+    - Bottom: detect when color columns become narrower
     
     Args:
         image_path: Path to the full Constat image
         output_dir: Directory to save crop (default: same as input)
-        model: Qwen model (if None, falls back to percentage-based)
-        processor: Qwen processor (if None, falls back to percentage-based)
     
     Returns:
         Path to cropped image, or None if failed
@@ -105,29 +174,40 @@ def extract_section_12_crop(image_path, output_dir=None, model=None, processor=N
     
     try:
         img = Image.open(image_path).convert('RGB')
+        img_array = np.array(img)
         width, height = img.size
         
-        # Try VLM detection if model provided
-        if model is not None and processor is not None:
-            print(f"   Using Qwen VLM for bbox detection...")
-            bbox = ask_qwen_for_bbox(model, processor, image_path)
-            
-            if bbox:
-                left, top, right, bottom = bbox
-                print(f"   VLM detected: L={left}, T={top}, R={right}, B={bottom}")
-            else:
-                print("   ⚠️ VLM detection failed, using fallback")
-                left = int(width * 0.01)
-                right = int(width * 0.99)
-                top = int(height * 0.40)
-                bottom = int(height * 0.70)
-        else:
-            # Fallback to percentage-based
-            print("   No VLM provided, using fallback percentages")
+        # First pass: find rough horizontal bounds using middle rows
+        sample_rows = [int(height * p) for p in [0.45, 0.50, 0.55, 0.60]]
+        left, right = find_horizontal_bounds(img_array, sample_rows)
+        
+        if left is None or right is None:
+            print("   ⚠️ Horizontal detection failed, using fallback")
             left = int(width * 0.01)
             right = int(width * 0.99)
+        else:
+            print(f"   Horizontal: L={left}, R={right}")
+        
+        # Second pass: find vertical bounds
+        top, bottom = find_vertical_bounds(img_array, left, right)
+        
+        if top is None:
+            print("   ⚠️ Top detection failed, using fallback")
             top = int(height * 0.40)
+        else:
+            print(f"   Top: {top}")
+            
+        if bottom is None:
+            print("   ⚠️ Bottom detection failed, using fallback")
             bottom = int(height * 0.70)
+        else:
+            print(f"   Bottom: {bottom}")
+        
+        # Small margins
+        left = max(0, left - 2)
+        right = min(width, right + 2)
+        top = max(0, top - 2)
+        bottom = min(height, bottom + 2)
         
         print(f"   Final crop: L={left}, T={top}, R={right}, B={bottom}")
         
@@ -156,5 +236,7 @@ def extract_section_12_crop(image_path, output_dir=None, model=None, processor=N
 
 if __name__ == "__main__":
     import sys
-    print("This module requires Qwen model to be loaded.")
-    print("Use from test_qwen_twostep.py instead.")
+    if len(sys.argv) > 1:
+        extract_section_12_crop(sys.argv[1])
+    else:
+        print("Usage: python crop_utils.py <image_path>")
