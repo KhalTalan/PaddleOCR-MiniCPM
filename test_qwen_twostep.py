@@ -322,7 +322,16 @@ def test_two_step_analysis(test_image_path, output_dir):
             print(f"   ⚠️  Real-ESRGAN failed, using original crop")
             analysis_crop = crop_path
     
-    # NOW load Qwen model (after Real-ESRGAN has freed GPU memory)
+    # Clear GPU memory before loading Qwen
+    print("\n🧹 Clearing GPU memory...")
+    import gc
+    gc.collect()
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
+        torch.cuda.synchronize()
+        print(f"   GPU memory freed: {torch.cuda.memory_allocated() / 1024**3:.2f} GB allocated")
+    
+    # NOW load Qwen model (GPU should be clear now)
     print("\n📦 Loading Qwen model...")
     model, processor = load_qwen()
     
