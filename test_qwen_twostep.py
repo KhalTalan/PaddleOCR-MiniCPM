@@ -293,30 +293,38 @@ def test_two_step_analysis(test_image_path, output_dir):
     test_image_path = Path(test_image_path)
     test_name = test_image_path.stem
     
-    # Load model once
-    model, processor = load_qwen()
-    
-    # Step 0: Crop Section 12 to output/crops/
+    # Step 0: Crop Section 12 to output/crops/ (BEFORE loading Qwen)
     print("\n✂️  STEP 0: Cropping Section 12...")
     crop_path = extract_section_12_crop(str(test_image_path))  # Goes to output/crops/
     if not crop_path:
         print("❌ Cropping failed")
         return None
     
-    # Step 0.5: Enhance crop with Real-ESRGAN
-    print("\n⚡ STEP 0.5: Enhancing with Real-ESRGAN...")
-    run_real_esrgan()
-    
-    # Find enhanced image in output/gan/
+    # Find enhanced image path
     crop_filename = Path(crop_path).name
     enhanced_crop_path = GAN_DIR / crop_filename
     
+    # Step 0.5: Enhance crop with Real-ESRGAN (BEFORE loading Qwen to avoid OOM)
     if enhanced_crop_path.exists():
-        print(f"   Using enhanced: {enhanced_crop_path}")
+        print(f"\n⚡ STEP 0.5: Using existing enhanced image")
+        print(f"   {enhanced_crop_path}")
         analysis_crop = enhanced_crop_path
     else:
-        print(f"   ⚠️  Enhanced not found, using original crop")
-        analysis_crop = crop_path
+        print("\n⚡ STEP 0.5: Enhancing with Real-ESRGAN...")
+        if run_real_esrgan():
+            if enhanced_crop_path.exists():
+                print(f"   Using enhanced: {enhanced_crop_path}")
+                analysis_crop = enhanced_crop_path
+            else:
+                print(f"   ⚠️  Enhanced not found, using original crop")
+                analysis_crop = crop_path
+        else:
+            print(f"   ⚠️  Real-ESRGAN failed, using original crop")
+            analysis_crop = crop_path
+    
+    # NOW load Qwen model (after Real-ESRGAN has freed GPU memory)
+    print("\n📦 Loading Qwen model...")
+    model, processor = load_qwen()
     
     # Step 1: Extract checkboxes from ENHANCED crop
     checkbox_data = extract_checkboxes(model, processor, analysis_crop)
