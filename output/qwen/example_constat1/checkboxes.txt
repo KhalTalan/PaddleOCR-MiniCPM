@@ -1,0 +1,115 @@
+{
+  "boxes": [
+    {
+      "index": 1,
+      "label": "en stationnement / à l'arrêt",
+      "vehicle_A": {"status":"EMPTY","confidence":100,"justification":"Box is completely blank."},
+      "vehicle_B": {"status":"EMPTY","confidence":100,"justification":"Box is completely blank."}
+    },
+    {
+      "index": 2,
+      "label": "quittait un stationnement / ouvrait une portière",
+      "vehicle_A": {"status":"EMPTY","confidence":100,"justification":"Box is completely blank."},
+      "vehicle_B": {"status":"EMPTY","confidence":100,"justification":"Box is completely blank."}
+    },
+    {
+      "index": 3,
+      "label": "prenait un stationnement",
+      "vehicle_A": {"status":"EMPTY","confidence":100,"justification":"Box is completely blank."},
+      "vehicle_B": {"status":"EMPTY","confidence":100,"justification":"Box is completely blank."}
+    },
+    {
+      "index": 4,
+      "label": "sortait d'un parking, d'un lieu privé, d'un chemin de terre",
+      "vehicle_A": {"status":"EMPTY","confidence":100,"justification":"Box is completely blank."},
+      "vehicle_B": {"status":"EMPTY","confidence":100,"justification":"Box is completely blank."}
+    },
+    {
+      "index": 5,
+      "label": "s'engageait dans un parking, un lieu privé, un chemin de terre",
+      "vehicle_A": {"status":"EMPTY","confidence":100,"justification":"Box is completely blank."},
+      "vehicle_B": {"status":"EMPTY","confidence":100,"justification":"Box is completely blank."}
+    },
+    {
+      "index": 6,
+      "label": "s'engageait sur une place à sens giratoire",
+      "vehicle_A": {"status":"EMPTY","confidence":100,"justification":"Box is completely blank."},
+      "vehicle_B": {"status":"EMPTY","confidence":100,"justification":"Box is completely blank."}
+    },
+    {
+      "index": 7,
+      "label": "roulait sur une place à sens giratoire",
+      "vehicle_A": {"status":"EMPTY","confidence":100,"justification":"Box is completely blank."},
+      "vehicle_B": {"status":"EMPTY","confidence":100,"justification":"Box is completely blank."}
+    },
+    {
+      "index": 8,
+      "label": "heurtait à l'arrière, en roulant dans le même sens et sur une même file",
+      "vehicle_A": {"status":"CHECKED","confidence":100,"justification":"Box contains a clear checkmark (✓)."},
+      "vehicle_B": {"status":"EMPTY","confidence":100,"justification":"Box is completely blank."}
+    },
+    {
+      "index": 9,
+      "label": "roulait dans le même sens et sur une file différente",
+      "vehicle_A": {"status":"EMPTY","confidence":100,"justification":"Box is completely blank."},
+      "vehicle_B": {"status":"EMPTY","confidence":100,"justification":"Box is completely blank."}
+    },
+    {
+      "index": 10,
+      "label": "changeait de file",
+      "vehicle_A": {"status":"EMPTY","confidence":100,"justification":"Box is completely blank."},
+      "vehicle_B": {"status":"EMPTY","confidence":100,"justification":"Box is completely blank."}
+    },
+    {
+      "index": 11,
+      "label": "doublait",
+      "vehicle_A": {"status":"EMPTY","confidence":100,"justification":"Box is completely blank."},
+      "vehicle_B": {"status":"EMPTY","confidence":100,"justification":"Box is completely blank."}
+    },
+    {
+      "index": 12,
+      "label": "virait à droite",
+      "vehicle_A": {"status":"EMPTY","confidence":100,"justification":"Box is completely blank."},
+      "vehicle_B": {"status":"CHECKED","confidence":100,"justification":"Box contains a clear checkmark (✓)."}
+    },
+    {
+      "index": 13,
+      "label": "virait à gauche",
+      "vehicle_A": {"status":"EMPTY","confidence":100,"justification":"Box is completely blank."},
+      "vehicle_B": {"status":"EMPTY","confidence":100,"justification":"Box is completely blank."}
+    },
+    {
+      "index": 14,
+      "label": "reculait",
+      "vehicle_A": {"status":"EMPTY","confidence":100,"justification":"Box is completely blank."},
+      "vehicle_B": {"status":"EMPTY","confidence":100,"justification":"Box is completely blank."}
+    },
+    {
+      "index": 15,
+      "label": "empiétait sur une voie réservée à la circulation en sens inverse",
+      "vehicle_A": {"status":"EMPTY","confidence":100,"justification":"Box is completely blank."},
+      "vehicle_B": {"status":"EMPTY","confidence":100,"justification":"Box is completely blank."}
+    },
+    {
+      "index": 16,
+      "label": "venait de droite (dans une carrefour)",
+      "vehicle_A": {"status":"EMPTY","confidence":100,"justification":"Box is completely blank."},
+      "vehicle_B": {"status":"EMPTY","confidence":100,"justification":"Box is completely blank."}
+    },
+    {
+      "index": 17,
+      "label": "n'avait pas observé un signal de priorité ou un feu rouge",
+      "vehicle_A": {"status":"EMPTY","confidence":100,"justification":"Box is completely blank."},
+      "vehicle_B": {"status":"EMPTY","confidence":100,"justification":"Box is completely blank."}
+    }
+  ],
+  "marked_cases": {
+    "vehicle_A": {"value": 1, "confidence": 100, "justification": "Only box 8 is checked for vehicle A."},
+    "vehicle_B": {"value": 1, "confidence": 100, "justification": "Only box 12 is checked for vehicle B."}
+  },
+  "meta": {
+    "image_id": "",
+    "timestamp": "2023-10-27T10:00:00Z",
+    "notes": []
+  }
+}
