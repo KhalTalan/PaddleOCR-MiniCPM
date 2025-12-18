@@ -172,9 +172,11 @@ def generate_llm_response(model, processor, messages):
     return_tensors="pt"
     )
     
-    # Move all input tensors to the same device as the model
-    inputs = {k: v.to(model.device) for k, v in inputs.items()}
-
+    # Explicitly force inputs to CUDA if available, bypassing model.device ambiguity
+    if torch.cuda.is_available():
+        inputs = {k: v.to("cuda") for k, v in inputs.items()}
+    else:
+        inputs = {k: v.to(model.device) for k, v in inputs.items()}
     
     generated_ids = model.generate(
         **inputs,
@@ -187,7 +189,7 @@ def generate_llm_response(model, processor, messages):
     
     generated_ids_trimmed = [
         out_ids[len(in_ids):] 
-        for in_ids, out_ids in zip(inputs.input_ids, generated_ids)
+        for in_ids, out_ids in zip(inputs["input_ids"], generated_ids)
     ]
     
     output_text = processor.batch_decode(
@@ -489,10 +491,28 @@ def render_analysis():
                 
                 full_analysis = generate_llm_response(model, processor, messages_full)
                 
+                # --- Save Results ---
+                result_dir = OUTPUT_DIR / "qwen" / img_path.stem
+                result_dir.mkdir(parents=True, exist_ok=True)
+                
+                checkbox_file = result_dir / "checkboxes.txt"
+                analysis_file = result_dir / "analysis.txt"
+                
+                with open(checkbox_file, "w", encoding="utf-8") as f:
+                    f.write(checkbox_data)
+                    
+                with open(analysis_file, "w", encoding="utf-8") as f:
+                    f.write(full_analysis)
+                
                 # --- Final Output ---
                 status_container.success("Analysis Complete! ✅")
                 
-                st.markdown("### 📄 Final Analysis Report")
+                st.markdown(f"""
+                ### 📄 Final Analysis Report
+                **Saved files:**
+                - `{checkbox_file.name}`
+                - `{analysis_file.name}`
+                """)
                 st.markdown(full_analysis)
                 
             except Exception as e:
