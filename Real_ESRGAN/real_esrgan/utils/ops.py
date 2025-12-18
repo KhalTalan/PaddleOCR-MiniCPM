@@ -16,7 +16,7 @@ import os
 from pathlib import Path
 from typing import Any, Union
 
-from natsort import natsorted
+
 from torch import Tensor, nn
 from torchvision.datasets.folder import IMG_EXTENSIONS
 
@@ -55,6 +55,12 @@ def check_tensor_shape(raw_tensor: Tensor, dst_tensor: Tensor):
     assert raw_tensor.shape == dst_tensor.shape, f"Supplied images have different sizes {str(raw_tensor.shape)} and {str(dst_tensor.shape)}"
 
 
+import re
+
+def natural_sort_key(s):
+    return [int(text) if text.isdigit() else text.lower()
+            for text in re.split('([0-9]+)', s)]
+
 def get_all_filenames(path: str | Path, image_extensions: tuple = None) -> list:
     r"""Get all file names in the input folder.
 
@@ -70,7 +76,8 @@ def get_all_filenames(path: str | Path, image_extensions: tuple = None) -> list:
 
     # Only get file names with specified extensions
     file_paths = path.iterdir()
-    file_names = natsorted([p.name for p in file_paths if p.suffix in image_extensions])
+    # Uses a simple natural sort implementation instead of natsort dependency
+    file_names = sorted([p.name for p in file_paths if p.suffix in image_extensions], key=natural_sort_key)
 
     return file_names
 
