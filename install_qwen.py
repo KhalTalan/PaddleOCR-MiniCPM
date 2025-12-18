@@ -39,12 +39,16 @@ def main():
     # 1. Upgrade pip
     run(f"{sys.executable} -m pip install --upgrade pip")
     
-    # 2. Install PyTorch with CUDA 12.4
-    print("\n📦 Step 1: Installing PyTorch 2.5.1 with CUDA 12.4...")
+    # 2. Fix NumPy version (CRITICAL - scipy/sklearn need numpy<2.0)
+    print("\n📦 Step 1: Fixing NumPy version (downgrade to <2.0)...")
+    run(f"{sys.executable} -m pip install 'numpy<2.0'")
+    
+    # 3. Install PyTorch with CUDA 12.4
+    print("\n📦 Step 2: Installing PyTorch 2.5.1 with CUDA 12.4...")
     run(f"{sys.executable} -m pip install torch==2.5.1 torchvision --index-url https://download.pytorch.org/whl/cu124")
     
-    # 3. Install transformers
-    print("\n📦 Step 2: Installing Transformers >=4.57.0...")
+    # 4. Install transformers
+    print("\n📦 Step 3: Installing Transformers >=4.57.0...")
     run(f"{sys.executable} -m pip install 'transformers>=4.57.0'")
     
     # 4. Install Flash Attention 2 from prebuilt wheel

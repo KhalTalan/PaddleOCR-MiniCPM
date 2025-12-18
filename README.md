@@ -1,375 +1,125 @@
-# 🚗 French Constat Analysis with PaddleOCR + MiniCPM-V
+# 🚗 French Constat Analysis with Qwen3-VL + Real-ESRGAN
 
-Automated analysis of French automobile accident reports (Constat Amiable d'Accident Automobile) using **Few-Shot Learning** with vision-language models.
+Automated analysis of French automobile accident reports (Constat Amiable d'Accident Automobile) using a two-step Vision-Language Model (VLM) pipeline with super-resolution enhancement.
 
-## 🎯 Overview
+## 🎯 Project Overview
 
-This project combines:
-- **PaddleOCR** for French text extraction
-- **MiniCPM-V-2_6** for intelligent document understanding
-- **Few-shot learning** to teach the model without extensive training data
+This project leverages the power of **Qwen3-VL-8B-Instruct** and **Real-ESRGAN** to provide high-accuracy extraction and interpretation of French accident reports. The system specifically targets the "CIRCONSTANCES" (Section 12) checkboxes, which are often difficult for standard models to read due to low resolution or messy handwriting.
 
-### What It Does
-
-Given a French Constat Amiable image, the system:
-1. ✅ Extracts all accident details (date, time, location, parties)
-2. ✅ Identifies which circumstance boxes are checked in Section 12
-3. ✅ Analyzes driver observations and identifies blame statements
-4. ✅ Reconstructs the accident step-by-step
-5. ✅ Determines fault liability based on French traffic law
-6. ✅ Generates structured analysis with percentage liability recommendations
+### Key Features
+- **Two-Step VLM Pipeline**: Separates checkbox extraction from full document interpretation for maximum precision.
+- **Image Enhancement**: Uses Real-ESRGAN to upscale handwriting and checkboxes before analysis.
+- **PaddleOCR Integration**: Precision-crops Section 12 for focused VLM processing.
+- **Automated Fault Analysis**: Determines liability based on French traffic laws and extracted circumstances.
 
 ---
 
-## 🚀 Quick Start
+## 🔄 Workflow
 
-### Prerequisites
+The system follows a modular, two-step workflow designed to overcome GPUI memory constraints and maximize VLM accuracy.
 
-- Python 3.11+
-- CUDA-capable GPU (recommended)
-- Hugging Face account with access to MiniCPM-V-2_6
-
-### Installation
-
-```bash
-# Clone the repository
-git clone https://github.com/KhalTalan/PaddleOCR-MiniCPM.git
-cd PaddleOCR-MiniCPM
-
-# Install dependencies
-pip install torch torchvision paddleocr transformers pillow python-dotenv
-
-# For CUDA support (recommended)
-pip install torch torchvision --index-url https://download.pytorch.org/whl/cu118
+```mermaid
+graph TD
+    A[Input Image] --> B[PaddleOCR Detection]
+    B --> C[Crop Section 12]
+    C --> D[Real-ESRGAN Enhancement]
+    D --> E[Step 1: Checkbox Extraction <br/><i>Qwen3-VL</i>]
+    E --> F[Checkbox Data JSON]
+    F --> G[Step 2: Full Analysis <br/><i>Qwen3-VL + Full Image + JSON</i>]
+    G --> H[Final Report]
 ```
 
-### Setup
+### Detailed Steps:
+1.  **Step 0: Cropping**: `utils/crop_utils.py` uses PaddleOCR to find Section 12 and saves a crop.
+2.  **Step 0.5: Enhancement**: `Real_ESRGAN` upscales the crop to improve small detail recognition.
+3.  **Step 1: Extraction**: Qwen3-VL analyzes only the enhanced crop to identify which of the 17 boxes are checked for Vehicle A and B.
+4.  **Step 2: Interpretation**: The model combines the full image context with the precise checkbox data to generate a structured analysis.
 
-1. **Get Hugging Face Token**
-   - Visit https://huggingface.co/settings/tokens
-   - Create a token
-   - Accept terms at https://huggingface.co/openbmb/MiniCPM-V-2_6
+---
 
-2. **Create `.env` file**
-   ```bash
-   # Copy the example
-   cp .env.example .env
-   
-   # Edit and add your token
-   HF_TOKEN=your_huggingface_token_here
-   ```
+## 🚀 Installation
 
-3. **Verify Setup**
-   ```bash
-   python app_constat_fewshot.py --help
-   ```
+The project requires a CUDA-capable GPU. The installation is automated via a specialized script.
+
+### 1. Prerequisites
+- Python 3.11+
+- NVIDIA GPU with CUDA 12.4+
+- Hugging Face Token (with access to `Qwen/Qwen3-VL-8B-Instruct`)
+
+### 2. Automatic Setup
+Run the installation script to handle PyTorch, Transformers, and Flash Attention 2:
+```bash
+python install_qwen.py
+```
+
+### 3. Environment Configuration
+Create a `.env` file in the root directory:
+```bash
+HF_TOKEN=your_huggingface_token_here
+```
 
 ---
 
 ## 📖 Usage
 
-### Basic Usage
+### Main Workflow
+Use `test_qwen_twostep.py` to process an accident report. It automatically handles cropping, enhancement, and the two-step analysis.
 
 ```bash
-python app_constat_fewshot.py path/to/constat_image.jpg
-```
-
-### Example
-
-```bash
-python app_constat_fewshot.py images/3.png
-```
-
-### Output Files
-
-All outputs are saved to the `output/` directory:
-
-| File | Content |
-|------|---------|
-| `{filename}_constat_result.txt` | Complete structured analysis |
-| `{filename}_ocr_output.txt` | Raw OCR extracted text |
-| `example_constat_ocr.txt` | OCR from training example (for debugging) |
-
----
-
-## 🧠 How It Works: Few-Shot Learning
-
-### The Pipeline
-
-```
-┌─────────────────────────────────────────────────────────────────┐
-│  TRAINING EXAMPLE (One-Shot)                                    │
-├─────────────────────────────────────────────────────────────────┤
-│  example_constat.png  ──┐                                       │
-│                         ├──> PaddleOCR ──> OCR Text ──> Prompt  │
-│  expected_answer.txt ───┘                                  │    │
-│                                                            ▼    │
-│                                                    ┌──────────┐ │
-│                                                    │ MiniCPM  │ │
-│  NEW CONSTAT (Test)                               │    V     │ │
-├─────────────────────────────────────────────────  │  2_6     │ │
-│  test_image.png  ───────> PaddleOCR ──> OCR Text ──> Prompt │ │
-│                                                    └──────────┘ │
-│                                                            │    │
-│                                                            ▼    │
-│                                                   Generated     │
-│                                                   Analysis      │
-└─────────────────────────────────────────────────────────────────┘
-```
-
-### Conversation Structure
-
-The model receives a 3-turn conversation:
-
-```python
-[
-    # Turn 1: User shows example
-    {
-        'role': 'user',
-        'content': [example_image, prompt_with_instructions]
-    },
-    
-    # Turn 2: Assistant shows perfect response
-    {
-        'role': 'assistant', 
-        'content': [expected_answer]
-    },
-    
-    # Turn 3: User asks to analyze new case
-    {
-        'role': 'user',
-        'content': [test_image, prompt_with_instructions]
-    }
-    # Model generates analysis here ↓
-]
-```
-
-The model learns the pattern from the example and applies it to new cases!
-
----
-
-## 📊 Output Format
-
-The analysis follows a 7-section structure:
-
-### 1. ACCIDENT DETAILS
-- Date, time, location
-- Injuries status
-- Witness information
-
-### 2. VEHICLE A (Left Side)
-- Driver information
-- Vehicle details
-- Insurance information
-- Damage description
-- Driver observation (with blame analysis)
-
-### 3. VEHICLE B (Right Side)
-- Same structure as Vehicle A
-
-### 4. CIRCUMSTANCES (Section 12)
-- Lists ONLY checked boxes for each vehicle
-- Example: `Vehicle A: Box 8 CHECKED (rear-end collision)`
-
-### 5. ACCIDENT RECONSTRUCTION
-- Step-by-step explanation
-- Evidence citations (box numbers, damage patterns)
-
-### 6. FAULT ANALYSIS
-- Applies French Barème de Responsabilité rules
-- Assigns liability percentages
-- Provides reasoning based on circumstances
-
-### 7. SUMMARY
-- Brief conclusion with fault determination
-
----
-
-## 🔧 Configuration
-
-### Model Settings
-
-Edit `app_constat_fewshot.py` to configure:
-
-```python
-# Device selection
-DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
-
-# Model parameters (in load_minicpm function)
-attn_implementation='sdpa'  # Options: 'sdpa', 'flash_attention_2'
-torch_dtype=torch.bfloat16  # Options: bfloat16, float16, float32
-```
-
-### OCR Language
-
-```python
-# Default is French
-ocr = load_paddleocr(lang='fr')
-
-# For multilingual support, change to:
-ocr = load_paddleocr(lang='latin')  # Latin script languages
+python test_qwen_twostep.py images/your_image.png
 ```
 
 ---
 
 ## 📁 Project Structure
 
-```
-PaddleOCR-MiniCPM/
-├── app_constat_fewshot.py      # Main analysis script
-├── expected_answer_constat.txt # Training example answer
-├── example_constat.png         # Training example image
-├── .env.example                # Environment template
-├── .env                        # Your HF token (git-ignored)
-├── README.md                   # This file
-├── output/                     # Generated analyses
-│   ├── 3_constat_result.txt
-│   ├── 3_ocr_output.txt
-│   └── example_constat_ocr.txt
-└── images/                     # Test images
-    └── 3.png
-```
+### Main Modules
+- **`test_qwen_twostep.py`**: The primary entry point orchestrating the entire pipeline.
+- **`Real_ESRGAN/`**: Module for image super-resolution. Provides the `inference_images.py` demo used for enhancement.
+- **`utils/`**:
+    - `crop_utils.py`: Contains logic to detect and crop sections of the Constat.
+    - `preprocess.py`: Image handling utilities.
+- **`install_qwen.py`**: The current recommended setup script for the environment.
+
+### Legacy Scripts
+> [!NOTE]
+> Scripts like `app_constat_fewshot.py` and `app_constat_qwen.py` (if present) are part of previous iterations and are kept for reference but are not the primary workflow.
 
 ---
 
-## 🎓 Understanding the Code
+## 📊 Outputs
 
-### Key Functions
+All results are organized in the `output/` directory:
 
-| Function | Purpose |
-|----------|---------|
-| `load_paddleocr()` | Initialize French OCR engine |
-| `load_minicpm()` | Load MiniCPM-V-2_6 with authentication |
-| `extract_ocr_text()` | Extract text blocks from image |
-| `build_prompt()` | Create analysis prompt with OCR text |
-| `analyze_constat_few_shot()` | Main few-shot learning pipeline |
-
-### Critical Design Decisions
-
-1. **Split Prompts (Training vs Test)**: Uses a detailed prompt for the example to teach the format, but a constrained prompt for the test case to prevent data hallucination.
-2. **OCR + Vision**: Combines text extraction with visual understanding (for checkboxes)
-3. **Concise expected answer**: ~2.3KB to avoid token limits
-4. **Source citations**: Every fact traceable to document section
-5. **Blame detection**: Identifies when driver observations accuse the other party
+| Path | Content |
+|------|---------|
+| `output/qwen/{image_name}/analysis.txt` | The final structured interpretation and fault analysis. |
+| `output/qwen/{image_name}/checkboxes.txt` | The JSON-like output from Step 1 containing checkbox states. |
+| `output/crops/` | Original crops of Section 12. |
+| `output/gan/` | Enhanced (upscaled) versions of the crops. |
 
 ---
 
-## 🐛 Troubleshooting
+## 🧠 Understanding the Analysis
 
-### Authentication Errors
-
-```
-401 Client Error: Unauthorized
-```
-
-**Solution**: 
-1. Check your `.env` file has the correct `HF_TOKEN`
-2. Verify you accepted the model terms at https://huggingface.co/openbmb/MiniCPM-V-2_6
-
-### Out of Memory
-
-```
-CUDA out of memory
-```
-
-**Solution**:
-- Reduce image resolution before processing
-- Use `torch_dtype=torch.float16` instead of `bfloat16`
-- Use CPU mode (slower): `DEVICE = "cpu"`
-
-### Incomplete Output
-
-If the model cuts off mid-analysis:
-- The expected answer might be too long
-- Try reducing `expected_answer_constat.txt` further
-- Check token limits in model settings
+The final report includes:
+1.  **Accident Details**: Date, time, location, injuries.
+2.  **Vehicle Profiles**: Driver, vehicle info, insurance, and damage.
+3.  **Circumstances Summary**: A human-readable summary of the checked boxes.
+4.  **Accident Reconstruction**: A logical flow of events.
+5.  **Fault Analysis**: Determination of liability (0/50/100%) based on French rules.
 
 ---
 
-## 🔬 Advanced Usage
+## 🛠️ Troubleshooting
 
-### Custom Training Example
-
-To use your own training example:
-
-1. Replace `example_constat.png` with your image
-2. Update `expected_answer_constat.txt` with the correct analysis
-3. Follow the existing format (7 sections)
-4. Keep it concise (~2.3KB max)
-
-### Batch Processing
-
-```python
-import glob
-from pathlib import Path
-
-# Process all images in a directory
-for img_path in glob.glob("images/*.png"):
-    print(f"\nProcessing {img_path}...")
-    os.system(f"python app_constat_fewshot.py {img_path}")
-```
-
----
-
-## 📝 Example Output
-
-```
-CONSTAT AMIABLE ANALYSIS
-
-1. ACCIDENT DETAILS
-Date: 09/10/2024, Time: 12h41
-Location: Rue de la Libération, 42000 Saint-Étienne, France
-Injuries: No | Other damage: No
-
-2. VEHICLE A (Left/Blue)
-Driver: FAURE Aymerick, DOB: 18/10/2000
-Vehicle: Renault Clio 3, Reg: 722-FXL-92
-Damage: Front bumper damaged
-Observation: "N'avait pas de clignotant!" - BLAMES Vehicle B
-
-3. VEHICLE B (Right/Yellow)
-Driver: KERVEAN Anne, DOB: 30/04/1995
-Vehicle: Peugeot 206, Reg: DG-789-TK
-Damage: Front right fender and bumper
-Observation: "Était sur son téléphone!" - BLAMES Vehicle A
-
-4. CIRCUMSTANCES
-Vehicle A: Box 8 CHECKED (rear-end collision)
-Vehicle B: Box 12 CHECKED (turning right)
-
-6. FAULT ANALYSIS
-Vehicle A: 75-100% liability (rear-end collision)
-Vehicle B: 0-25% liability (possible failure to signal)
-```
-
----
-
-## 🤝 Contributing
-
-Contributions are welcome! Areas for improvement:
-- Support for more Constat layouts
-- Multi-language support
-- Automated validation against ground truth
-- Integration with insurance systems
-
----
-
-## 📄 License
-
-This project is open source. Check the repository for license details.
+- **CUDA Out of Memory**: The script explicitly clears GPU memory between the GAN enhancement and VLM loading to prevent crashes. Ensure no other heavy processes are running.
+- **Model Access**: Ensure you have accepted the terms for Qwen3-VL on Hugging Face.
+- **Flash Attention**: If `flash-attn` installation fails, the system will automatically fall back to `sdpa` (Standard PyTorch Attention).
 
 ---
 
 ## 🙏 Acknowledgments
-
-- **PaddleOCR** for excellent OCR capabilities
-- **OpenBMB** for the MiniCPM-V-2_6 model
-- **Hugging Face** for model hosting
-
----
-
-## 📧 Contact
-
-For questions or issues, please open an issue on GitHub.
-
-**Repository**: https://github.com/KhalTalan/PaddleOCR-MiniCPM
+- **Qwen Team** for the Qwen3-VL model.
+- **Real-ESRGAN** for the super-resolution module.
+- **PaddleOCR** for the robust detection framework.
