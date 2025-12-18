@@ -257,6 +257,14 @@ Brief summary (2-3 sentences) of the accident and fault determination."""
 
 # --- Application Layout ---
 
+
+def clean_memory():
+    """Aggressively clear GPU memory"""
+    gc.collect()
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
+        torch.cuda.ipc_collect()
+
 def main():
     # Sidebar
     st.sidebar.title("Navigation")
@@ -324,6 +332,9 @@ def render_analysis():
             st.image(str(img_path), caption="Original Image", use_container_width=True)
         
         if st.button("🚀 Start Analysis", type="primary"):
+            # Clean memory immediately
+            clean_memory()
+            
             status_container = st.empty()
             
             try:
