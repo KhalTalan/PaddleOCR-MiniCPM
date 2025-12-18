@@ -169,9 +169,12 @@ def generate_llm_response(model, processor, messages):
         tokenize=True,
         add_generation_prompt=True,
         return_dict=True,
-        return_tensors="pt"
+    return_tensors="pt"
     )
-    inputs = inputs.to(model.device)
+    
+    # Move all input tensors to the same device as the model
+    inputs = {k: v.to(model.device) for k, v in inputs.items()}
+
     
     generated_ids = model.generate(
         **inputs,
