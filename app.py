@@ -94,7 +94,9 @@ def run_real_esrgan_in_process():
             
         config_dict = OmegaConf.load(config_path)
         
-        # Instantiate and run
+
+        # Instantiate and run - FORCE CPU TO AVOID OOM
+        config_dict.device = "cpu" 
         inferencer = SuperResolutionInferencer(config_dict)
         # inferencer.warmup() # Skip warmup to save memory
         inferencer.inference()
