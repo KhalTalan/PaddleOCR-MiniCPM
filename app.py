@@ -96,7 +96,7 @@ def run_real_esrgan_in_process():
         
 
         # Instantiate and run - FORCE CPU TO AVOID OOM
-        config_dict.device = "cpu" 
+        config_dict.DEVICE = "cpu" 
         inferencer = SuperResolutionInferencer(config_dict)
         # inferencer.warmup() # Skip warmup to save memory
         inferencer.inference()
