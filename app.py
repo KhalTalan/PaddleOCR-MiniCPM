@@ -392,6 +392,13 @@ def render_analysis():
             # Clean memory immediately
             clean_memory()
             
+            # Clean output directories to prevent processing old files
+            import shutil
+            for folder in [CROPS_DIR, GAN_DIR]:
+                if folder.exists():
+                    shutil.rmtree(folder)
+                folder.mkdir(parents=True, exist_ok=True)
+            
             status_container = st.empty()
             
             # placeholders for cleanup
