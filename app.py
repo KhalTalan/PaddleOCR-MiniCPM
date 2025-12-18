@@ -96,7 +96,11 @@ def run_real_esrgan_in_process():
         
 
         # Instantiate and run - FORCE CPU TO AVOID OOM
-        config_dict.DEVICE = "cpu" 
+        config_dict.DEVICE = "cpu"
+        # Explicitly set paths relative to the current working directory or absolute paths
+        config_dict.INPUTS = str(CROPS_DIR)
+        config_dict.OUTPUT = str(GAN_DIR)
+        
         inferencer = SuperResolutionInferencer(config_dict)
         # inferencer.warmup() # Skip warmup to save memory
         inferencer.inference()
