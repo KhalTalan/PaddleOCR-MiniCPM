@@ -78,9 +78,11 @@ st.markdown("""
 
 # --- Helper Functions (Adapted from test_qwen_twostep.py) ---
 
-def run_real_esrgan_in_process():
+def run_real_esrgan_in_process(status_container=None):
     """Run Real-ESRGAN in-process to share CUDA context"""
     try:
+        if status_container: status_container.info("🎨 Step 2/4: Initializing Real-ESRGAN...")
+
         from omegaconf import OmegaConf
         # Add internal path for imports to work
         if str(REAL_ESRGAN_DIR) not in sys.path:
@@ -101,8 +103,10 @@ def run_real_esrgan_in_process():
         config_dict.INPUTS = str(CROPS_DIR)
         config_dict.OUTPUT = str(GAN_DIR)
         
+        if status_container: status_container.info("🎨 Step 2/4: Loading GAN Model (CPU)...")
         inferencer = SuperResolutionInferencer(config_dict)
-        # inferencer.warmup() # Skip warmup to save memory
+        
+        if status_container: status_container.info("🎨 Step 2/4: Enhancing image...")
         inferencer.inference()
         
         # Cleanup
@@ -425,7 +429,7 @@ def render_analysis():
                 enhanced_path = GAN_DIR / Path(crop_path).name
                 
                 # We just run it.
-                success, msg = run_real_esrgan_in_process()
+                success, msg = run_real_esrgan_in_process(status_container)
                 
                 if success and enhanced_path.exists():
                     analysis_crop = str(enhanced_path)
