@@ -135,27 +135,33 @@ def load_qwen_model():
     # Load model
     if device == "cuda":
         try:
+            # Force full model on GPU to avoid split-device issues with Flash Attn
+            # We avoid device_map="auto" because it was putting embeddings on CPU
             model = Qwen3VLForConditionalGeneration.from_pretrained(
                 model_name,
                 dtype=torch.bfloat16,
                 attn_implementation="flash_attention_2",
-                device_map="auto",
+                device_map=None,
                 cache_dir=str(CACHE_DIR),
                 token=hf_token
             )
-        except:
+            model.to("cuda")
+        except Exception as e:
+            # Fallback or retry
+            print(f"Flash Attn load failed or OOM: {e}, retrying with default...")
             model = Qwen3VLForConditionalGeneration.from_pretrained(
                 model_name,
                 dtype=torch.bfloat16,
-                device_map="auto",
+                device_map=None,
                 cache_dir=str(CACHE_DIR),
                 token=hf_token
             )
+            model.to("cuda")
     else:
         model = Qwen3VLForConditionalGeneration.from_pretrained(
             model_name,
             dtype=torch.float32,
-            device_map="auto",
+            device_map=None,
             cache_dir=str(CACHE_DIR),
             token=hf_token
         )
