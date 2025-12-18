@@ -263,6 +263,53 @@ Who is likely at fault and why, based on French traffic law and the circumstance
 Brief summary (2-3 sentences) of the accident and fault determination."""
 
 
+def parse_and_display_checkboxes(json_text):
+    """Parse JSON output and display as a Streamlit table"""
+    import pandas as pd
+    try:
+        # Extract JSON from potential markdown code blocks
+        if "```json" in json_text:
+            json_text = json_text.split("```json")[1].split("```")[0].strip()
+        elif "```" in json_text:
+            json_text = json_text.split("```")[1].split("```")[0].strip()
+            
+        data = json.loads(json_text)
+        
+        if "boxes" in data:
+            st.markdown("### ✅ Extracted Checkboxes")
+            
+            # Create a simplified list for display
+            rows = []
+            for item in data["boxes"]:
+                # Visualize checkmarks
+                va_status = item['vehicle_A']['status']
+                vb_status = item['vehicle_B']['status']
+                
+                va_mark = "✅" if "CHECKED" in va_status else ""
+                vb_mark = "✅" if "CHECKED" in vb_status else ""
+                
+                rows.append({
+                    "Index": item['index'],
+                    "Vehicle A (Left)": va_mark,
+                    "Circumstance": item['label'],
+                    "Vehicle B (Right)": vb_mark
+                })
+            
+            df = pd.DataFrame(rows)
+            st.table(df)
+            
+            # Show totals if available
+            if "marked_cases" in data:
+                cols = st.columns(2)
+                with cols[0]:
+                    st.metric("Total Boxes A", data['marked_cases']['vehicle_A']['value'])
+                with cols[1]:
+                    st.metric("Total Boxes B", data['marked_cases']['vehicle_B']['value'])
+                    
+    except Exception as e:
+        st.warning(f"Could not visualize checkboxes (JSON parsing failed): {e}")
+
+
 # --- Application Layout ---
 
 
@@ -337,7 +384,7 @@ def render_analysis():
         
         col1, col2 = st.columns(2)
         with col1:
-            st.image(str(img_path), caption="Original Image", use_container_width=True)
+            st.image(str(img_path), caption="Original Image", width="stretch")
         
 
         if st.button("🚀 Start Analysis", type="primary"):
@@ -361,7 +408,7 @@ def render_analysis():
                 
                 # Show crop
                 with col2:
-                    st.image(crop_path, caption="Detected Crop", use_container_width=True)
+                    st.image(crop_path, caption="Detected Crop", width="stretch")
                 
                 # --- Step 0.5: GAN ---
                 status_container.info("🎨 Step 2/4: Enhancing Image with Real-ESRGAN...")
@@ -377,7 +424,7 @@ def render_analysis():
                     st.success("GAN Enhancement Successful!")
                     # Show GAN result
                     with col2:
-                        st.image(analysis_crop, caption="Enhanced (GAN) Crop", use_container_width=True)
+                        st.image(analysis_crop, caption="Enhanced (GAN) Crop", width="stretch")
                 else:
                     st.warning(f"GAN Enhancement failed or skipped ({msg}). Using original crop.")
                     analysis_crop = crop_path
@@ -407,8 +454,10 @@ def render_analysis():
                 
                 checkbox_data = generate_llm_response(model, processor, messages_checkbox)
                 
-                # Show intermediate JSON
-                with st.expander("View Checkbox Data (JSON)"):
+                # Show visual checkboxes
+                parse_and_display_checkboxes(checkbox_data)
+                
+                with st.expander("View Raw JSON Data"):
                     st.code(checkbox_data, language="json")
                 
                 # Full Analysis
