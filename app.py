@@ -78,35 +78,35 @@ st.markdown("""
 
 # --- Helper Functions (Adapted from test_qwen_twostep.py) ---
 
-def run_real_esrgan_subprocess():
-    """Run Real-ESRGAN on all images in output/crops/ via subprocess"""
-    config_path = REAL_ESRGAN_DIR / "configs" / "inference" / "images.yaml"
-    script_path = REAL_ESRGAN_DIR / "demo" / "inference_images.py"
-    
-    if not config_path.exists():
-        return False, f"Config not found: {config_path}"
-    
-    # Run subprocess
+def run_real_esrgan_in_process():
+    """Run Real-ESRGAN in-process to share CUDA context"""
     try:
-        # Prepare environment with correct PYTHONPATH
-        env = os.environ.copy()
-        # Add Real_ESRGAN directory to PYTHONPATH so module 'real_esrgan' can be found
-        env["PYTHONPATH"] = str(REAL_ESRGAN_DIR) + os.pathsep + env.get("PYTHONPATH", "")
-        # Help with fragmentation in subprocess
-        env["PYTORCH_CUDA_ALLOC_CONF"] = "expandable_segments:True"
+        from omegaconf import OmegaConf
+        # Add internal path for imports to work
+        if str(REAL_ESRGAN_DIR) not in sys.path:
+            sys.path.append(str(REAL_ESRGAN_DIR))
+            
+        from real_esrgan.apis.super_resolution import SuperResolutionInferencer
         
-        result = subprocess.run(
-            [sys.executable, str(script_path), str(config_path)],
-            capture_output=True,
-            text=True,
-            env=env
-        )
-        if result.returncode == 0:
-            return True, "Success"
-        else:
-            return False, result.stderr
+        config_path = REAL_ESRGAN_DIR / "configs" / "inference" / "images.yaml"
+        if not config_path.exists():
+            return False, f"Config not found: {config_path}"
+            
+        config_dict = OmegaConf.load(config_path)
+        
+        # Instantiate and run
+        inferencer = SuperResolutionInferencer(config_dict)
+        # inferencer.warmup() # Skip warmup to save memory
+        inferencer.inference()
+        
+        # Cleanup
+        del inferencer
+        clean_memory()
+        
+        return True, "Success"
     except Exception as e:
-        return False, str(e)
+        import traceback
+        return False, f"{e}\n{traceback.format_exc()}"
 
 def load_qwen_model():
     """Load Qwen3-VL-8B-Instruct model (uncached to manage memory)"""
@@ -363,9 +363,8 @@ def render_analysis():
                 # Check if enhanced exists
                 enhanced_path = GAN_DIR / Path(crop_path).name
                 
-                # We need to ensure logic matches script: run_real_esrgan runs on ALL in crops dir
-                # So we just run it.
-                success, msg = run_real_esrgan_subprocess()
+                # We just run it.
+                success, msg = run_real_esrgan_in_process()
                 
                 if success and enhanced_path.exists():
                     analysis_crop = str(enhanced_path)
