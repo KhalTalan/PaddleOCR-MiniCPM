@@ -88,10 +88,16 @@ def run_real_esrgan_subprocess():
     
     # Run subprocess
     try:
+        # Prepare environment with correct PYTHONPATH
+        env = os.environ.copy()
+        # Add Real_ESRGAN directory to PYTHONPATH so module 'real_esrgan' can be found
+        env["PYTHONPATH"] = str(REAL_ESRGAN_DIR) + os.pathsep + env.get("PYTHONPATH", "")
+        
         result = subprocess.run(
             [sys.executable, str(script_path), str(config_path)],
             capture_output=True,
-            text=True
+            text=True,
+            env=env
         )
         if result.returncode == 0:
             return True, "Success"
