@@ -92,6 +92,8 @@ def run_real_esrgan_subprocess():
         env = os.environ.copy()
         # Add Real_ESRGAN directory to PYTHONPATH so module 'real_esrgan' can be found
         env["PYTHONPATH"] = str(REAL_ESRGAN_DIR) + os.pathsep + env.get("PYTHONPATH", "")
+        # Help with fragmentation in subprocess
+        env["PYTORCH_CUDA_ALLOC_CONF"] = "expandable_segments:True"
         
         result = subprocess.run(
             [sys.executable, str(script_path), str(config_path)],
@@ -331,11 +333,16 @@ def render_analysis():
         with col1:
             st.image(str(img_path), caption="Original Image", use_container_width=True)
         
+
         if st.button("🚀 Start Analysis", type="primary"):
             # Clean memory immediately
             clean_memory()
             
             status_container = st.empty()
+            
+            # placeholders for cleanup
+            model = None
+            processor = None
             
             try:
                 # --- Step 0: Crop ---
@@ -372,9 +379,8 @@ def render_analysis():
                 
                 # --- Clear Memory before Model Load ---
                 status_container.info("pwipe Checking GPU memory...")
-                gc.collect()
-                if torch.cuda.is_available():
-                    torch.cuda.empty_cache()
+                # Double check memory again before loading heavy model
+                clean_memory()
                 
                 # --- Step 1 & 2: Qwen Analysis ---
                 status_container.info("📦 Step 3/4: Loading Qwen3-VL Model (This may take a moment)...")
@@ -420,17 +426,20 @@ def render_analysis():
                 st.markdown("### 📄 Final Analysis Report")
                 st.markdown(full_analysis)
                 
-                # Cleanup model from memory
-                del model
-                del processor
-                gc.collect()
-                if torch.cuda.is_available():
-                    torch.cuda.empty_cache()
-                
             except Exception as e:
                 st.error(f"An error occurred during analysis: {str(e)}")
                 import traceback
                 st.code(traceback.format_exc())
+            
+            finally:
+                # Force cleanup of model and processor
+                if model is not None:
+                    del model
+                if processor is not None:
+                    del processor
+                
+                # Aggressive memory cleanup
+                clean_memory()
 
 if __name__ == "__main__":
     main()
