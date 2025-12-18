@@ -114,6 +114,7 @@ def run_real_esrgan_in_process():
         import traceback
         return False, f"{e}\n{traceback.format_exc()}"
 
+@st.cache_resource(show_spinner="Loading Model...")
 def load_qwen_model():
     """Load Qwen3-VL-8B-Instruct model (uncached to manage memory)"""
     model_name = 'Qwen/Qwen3-VL-8B-Instruct'
@@ -486,13 +487,7 @@ def render_analysis():
                 st.code(traceback.format_exc())
             
             finally:
-                # Force cleanup of model and processor
-                if model is not None:
-                    del model
-                if processor is not None:
-                    del processor
-                
-                # Aggressive memory cleanup
+                # Aggressive memory cleanup (clears temp vars but keeps cached model)
                 clean_memory()
 
 if __name__ == "__main__":
