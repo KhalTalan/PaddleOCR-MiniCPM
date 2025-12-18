@@ -383,9 +383,9 @@ def render_analysis():
         # enhanced_crop_path = GAN_DIR / crop_filename
         crop_filename_expected = f"{img_path.stem}_crop_section12.jpg"
         
-        col1, col2 = st.columns(2)
+        col1, col2, col3 = st.columns(3)
         with col1:
-            st.image(str(img_path), caption="Original Image", width="stretch")
+            st.image(str(img_path), caption="1. Original Input", width="stretch")
         
 
         if st.button("🚀 Start Analysis", type="primary"):
@@ -409,7 +409,7 @@ def render_analysis():
                 
                 # Show crop
                 with col2:
-                    st.image(crop_path, caption="Detected Crop", width="stretch")
+                    st.image(crop_path, caption="2. Detected Section 12", width="stretch")
                 
                 # --- Step 0.5: GAN ---
                 status_container.info("🎨 Step 2/4: Enhancing Image with Real-ESRGAN...")
@@ -424,8 +424,8 @@ def render_analysis():
                     analysis_crop = str(enhanced_path)
                     st.success("GAN Enhancement Successful!")
                     # Show GAN result
-                    with col2:
-                        st.image(analysis_crop, caption="Enhanced (GAN) Crop", width="stretch")
+                    with col3:
+                        st.image(analysis_crop, caption="3. Enhanced with GAN", width="stretch")
                 else:
                     st.warning(f"GAN Enhancement failed or skipped ({msg}). Using original crop.")
                     analysis_crop = crop_path
